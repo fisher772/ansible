@@ -122,8 +122,9 @@ if [ -x "$(command -v genie)" ]; then
     genie -s
 fi
 #enable var path for Ansible to remote hosts cfg file 
-export ANSIBLE_HOSTS=/home/ansible/ansible/projects/IAC/cfg/hosts
+export ANSIBLE_HOSTS=/home/ansible/ansible/projects/IAC/inventory/hosts
 #enable var path for Ansible to Ansible cfg
-export ANSIBLE_CONFIG=/home/ansible/ansible/projects/IAC/cfg/ansible.cfg
+export ANSIBLE_CONFIG=/home/ansible/ansible/projects/IAC/inventory/ansible.cfg
 #enable path to venv module ansible-lint
-export PATH=$PATH:/home/ansible/ansible/ansible-lint-venv/bin
+export PATH=$PATH:/home/ansible/ansible/ansible-lint-venv/bin/python3
+export PATH=/usr/bin:$PATH

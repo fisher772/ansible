@@ -1,0 +1,13 @@
+[DEVOPS_SERVER]
+devops 	ansible_host=192.168.1.200
+
+[DNS_SERVER]
+dns     ansible_host=192.168.1.100
+
+[TEST_SERVER]
+test    ansible_host=192.168.1.150
+
+[ALL_SERVERS]
+devops	ansible_host=192.168.1.200
+dns     ansible_host=192.168.1.100
+test    ansible_host=192.168.1.150
