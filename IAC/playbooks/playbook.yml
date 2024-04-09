@@ -7,7 +7,7 @@
     - name: Ping test
       ping:
 
-    - name: Store Facts on VM
+    - name: Store Facts of VM
       set_fact: 
         vm_os_fam: "{{ ansible_facts['os_family'] }}"
 
@@ -162,6 +162,7 @@
         key_exists: true
       loop: '{{ deployed_keys.json }}'
       when: clean_ssh_key in item.key
+      no_log: true
 
     - name: Add SSH Key to GitHub
       uri:
@@ -189,16 +190,20 @@
   gather_facts: false
 
   tasks:
-    - name: Install Docker for 'Debian/Ubuntu'
+    - name: Install Docker and Docker-compose for 'Debian/Ubuntu'
       apt:
-        name: docker
+        name:
+          - docker
+          - docker-compose
         state: latest
       when: vm_os_fam == 'Debian' or
             vm_os_fam == 'Ubuntu'
 
-    - name: Install Docker for 'RedHat'
+    - name: Install Docker and Docker-compose for 'RedHat'
       yum:
-        name: docker
+        name: 
+          - docker
+          - docker-compose
         state: latest
       when: vm_os_fam == 'RedHat'
 
