@@ -8,103 +8,112 @@
       ping:
 
     - name: Store Facts of VM
-      set_fact: 
+      set_fact:
         vm_os_fam: "{{ ansible_facts['os_family'] }}"
 
-- name: Update Packages
+- name: Install Py Modules
   hosts: test
   become: true
   gather_facts: false
+  vars_files:
+    - env.yml
 
   tasks:
-    - name: Execute Update unix Packages 'Debian/Ubuntu'
-      apt:
-        name: upgrade
-        state: latest
-      when: vm_os_fam == 'Debian' or
-            vm_os_fam == 'Ubuntu'
-
-    - name: Execute update unix Packages for 'RedHat'
-      yum:
-        name: '*'
-        state: latest
-      when: vm_os_fam == 'RedHat'
-
-- name: Install unix SDK
-  hosts: test
-  become: true
-  gather_facts: false
-
-  tasks:
-    - name: Install Repos for 'Debian/Ubuntu'
-      apt:
-        name: epel-release
-      when: vm_os_fam == 'Debian' or
-            vm_os_fam == 'Ubuntu'
-
-    - name: Install Repos for 'RedHat'
-      yum:
-        name: epel-release
-      when: vm_os_fam == 'RedHat'
-    
-    - name: Install utils/unix-apps for 'Debian/Ubuntu' 
-      apt:
-        name:
-          - mc
-          - lsof
-          - htop
-          - vim
-          - python3
-          - curl
-          - wget
-          - telnet
-          - mlocate
-        state: latest
-      when: vm_os_fam == 'Debian' or
-            vm_os_fam == 'Ubuntu'
-      register: results
-
-    - name: Install utils/unix-apps for 'RedHat'
-      yum:
-        name:
-          - mc
-          - lsof
-          - htop
-          - vim
-          - python3
-          - curl
-          - wget
-          - telnet
-          - mlocate
-        state: latest
-      when: vm_os_fam == 'RedHat'
-      register: results
-        
-    - name: Print result "Install utils/unix-apps"
-      debug:
-        var: results
-        verbosity: 4
-      when: results is changed
-
-    - name: Install Py Module's
+    - name: Execute Install Py Modules
       pip:
-        name: 
-          - packaging
-          - setuptools
-          - virtualenv
+        name: '{{ py_modules }}'
         state: latest
       register: results
 
-    - name: Print result "Install Py Module's"
+    - name: Print result "Install Py Modules"
       debug:
         var: results
         verbosity: 4
       when: results is changed
+
+- name: Install SDK
+  hosts: test
+  become: true
+  gather_facts: false
+  vars_files:
+    - env.yml
+
+  tasks:
+#####Block for Debian/Ubuntu#####   
+    - block:
+
+        - name: Execute Update unix Packages 'Debian/Ubuntu'
+          apt:
+            name: upgrade
+            state: latest
+
+        - name: Install Repos for 'Debian/Ubuntu'
+          apt:
+            name: epel-release
+
+        - name: Install utils/unix-apps for 'Debian/Ubuntu' 
+          apt:
+            name: '{{ packages }}'
+            state: latest
+          register: results
+
+        - name: Print result "Install utils/unix-apps"
+          debug:
+            var: results
+            verbosity: 4
+          when: results is changed
+
+      when: vm_os_fam == 'Debian' or
+            vm_os_fam == 'Ubuntu'
+
+#####Block for RedHat#####   
+    - block:
+
+        - name: Execute Update unix Packages 'RedHat'
+          yum:
+            name: '*'
+            state: latest
+
+        - name: Install Repos for 'RedHat'
+          yum:
+            name: epel-release
+
+        - name: Install utils/unix-apps for 'RedHat' 
+          yum:
+            name: '{{ packages }}'
+            state: latest
+          register: results
+
+        - name: Print result "Install utils/unix-apps"
+          debug:
+            var: results
+            verbosity: 4
+          when: results is changed
+
+      when: vm_os_fam == 'RedHat'
+
+- name: Start and Enable Services
+  hosts: test
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Check services Status and Daemon
+      shell: systemctl status docker && systemctl is-enabled docker
+      register: services_status
+      ignore_errors: true
 
     - name: Execute cmd updatedb
-      shell: updatedb    
+      shell: updatedb
 
-- name: Installation and Global Configuration of the Git config
+    - name: Start and Enable Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+      when: services_status.rc != 0
+
+- name: Global Configuration of the Git config
   hosts: test
   become: true
   gather_facts: false
@@ -113,19 +122,6 @@
     - credentials.yml
 
   tasks:
-    - name: Install Git for 'Debian/Ubuntu'
-      apt:
-        name: git
-        state: latest
-      when: vm_os_fam == 'Debian' or
-            vm_os_fam == 'Ubuntu'
-
-    - name: Install Git for 'RedHat'
-      yum:
-        name: git
-        state: latest
-      when: vm_os_fam == 'RedHat'
-
     - name: Global Configuration for Git
       git_config:
         name: alias.ci
@@ -183,37 +179,3 @@
         var: results
         verbosity: 4
       when: results is changed
-
-- name: Install Containering SDK 
-  hosts: test
-  become: true
-  gather_facts: false
-
-  tasks:
-    - name: Install Docker and Docker-compose for 'Debian/Ubuntu'
-      apt:
-        name:
-          - docker
-          - docker-compose
-        state: latest
-      when: vm_os_fam == 'Debian' or
-            vm_os_fam == 'Ubuntu'
-
-    - name: Install Docker and Docker-compose for 'RedHat'
-      yum:
-        name: 
-          - docker
-          - docker-compose
-        state: latest
-      when: vm_os_fam == 'RedHat'
-
-    - name: Install Docker Module for Python
-      pip: 
-        name: docker
-        state: latest
-
-    - name: Start and enable Docker service
-      service:
-        name: docker
-        state: started
-        enabled: yes
