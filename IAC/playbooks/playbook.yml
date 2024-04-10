@@ -47,17 +47,13 @@
             name: upgrade
             state: latest
 
-        - name: Install Repos for 'Debian/Ubuntu'
-          apt:
-            name: epel-release
-
-        - name: Install utils/unix-apps for 'Debian/Ubuntu' 
+        - name: Install utils/unix-packages for 'Debian/Ubuntu'
           apt:
             name: '{{ packages }}'
             state: latest
           register: results
 
-        - name: Print result "Install utils/unix-apps"
+        - name: Print result "Install utils/unix-packages"
           debug:
             var: results
             verbosity: 4
@@ -74,11 +70,7 @@
             name: '*'
             state: latest
 
-        - name: Install Repos for 'RedHat'
-          yum:
-            name: epel-release
-
-        - name: Install utils/unix-apps for 'RedHat' 
+        - name: Install utils/unix-apps for 'RedHat'
           yum:
             name: '{{ packages }}'
             state: latest
