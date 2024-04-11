@@ -1,0 +1,5 @@
+---
+# defaults file for deploy_sdk_linux
+github_url: 'https://api.github.com/user/keys'
+path_key:   '/root/.ssh/id_ed25519.pub'
+title_key:  'TEST'
