@@ -1,5 +1,5 @@
 ---
-- name: Test Connection to Test server and Select Facts VM
+- name: Deploy SDK for Linux
   hosts: '{{ MYHOSTS }}'
   become: true
   vars_files:
