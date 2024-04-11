@@ -1,0 +1,9 @@
+---
+- name: Test Connection to Test server and Select Facts VM
+  hosts: '{{ MYHOSTS }}'
+  become: true
+  vars_files:
+    - credentials.yml
+
+  roles:
+    - { role: deploy_sdk_linux, when: ansible_system == 'Linux' }
