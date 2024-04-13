@@ -11,53 +11,32 @@
   pip:
     name: '{{ py_modules }}'
     state: latest
-  register: results
 
-- name: Print result "Install Py Modules"
-  debug:
-    var: results
-    verbosity: 4
-  when: results is changed
-
-#####Block for Debian/Ubuntu#####   
+#####Block for Debian/Ubuntu#####
 - block:
     - name: Execute Update unix Packages 'Debian/Ubuntu'
       apt:
         name: upgrade
         state: latest
 
-    - name: Install utils/unix-packages for 'Debian/Ubuntu' 
+    - name: Install utils/unix-packages for 'Debian/Ubuntu'
       apt:
         name: '{{ packages }}'
         state: latest
-      register: results
-
-    - name: Print result "Install utils/unix-packages"
-      debug:
-        var: results
-        verbosity: 4
-      when: results is changed
   when: vm_os_fam == 'Debian' or
         vm_os_fam == 'Ubuntu'
 
-#####Block for RedHat#####   
+#####Block for RedHat#####
 - block:
     - name: Execute Update unix Packages 'RedHat'
       yum:
         name: '*'
         state: latest
 
-    - name: Install utils/unix-apps for 'RedHat' 
+    - name: Install utils/unix-apps for 'RedHat'
       yum:
         name: '{{ packages }}'
         state: latest
-      register: results
-
-    - name: Print result "Install utils/unix-apps"
-      debug:
-        var: results
-        verbosity: 4
-      when: results is changed
   when: vm_os_fam == 'RedHat'
 
 - name: Check services Status and Daemon
@@ -72,7 +51,7 @@
   service:
     name: docker
     state: started
-    enabled: yes
+    enabled: true
   when: services_status.rc != 0
 
 - name: Set Global Configurations for Git
@@ -81,6 +60,7 @@
     value: '{{ item.value }}'
     scope: global
   loop: '{{ git_cfg }}'
+  no_log: true
 
 - name: Read SSH key from file on the remote host
   slurp:
@@ -127,10 +107,3 @@
       key: '{{ ssh_key }}'
     status_code: 201
   when: not key_exists
-  register: results
-    
-- name: Print result "Add ssh Key to GitHub"
-  debug:
-    var: results
-    verbosity: 4
-  when: results is changed
