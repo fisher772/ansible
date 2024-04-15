@@ -16,9 +16,11 @@ packages:
   - curl
   - wget
   - telnet
-  - docker
-  - docker-compose
+  # - yum-utils
   - mlocate
+
+services:
+  - docker-ce
 
 py_modules:
   - packaging

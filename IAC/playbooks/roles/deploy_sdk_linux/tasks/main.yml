@@ -23,8 +23,24 @@
       apt:
         name: '{{ packages }}'
         state: latest
-  when: vm_os_fam == 'Debian' or
-        vm_os_fam == 'Ubuntu'
+        update_cache: true
+
+    - name: Add Docker Repository
+      apt_repository:
+        repo: 'deb [arch=amd64] {{ path_docker_repo_debian }} stable main'
+        state: present
+        update_cache: true
+        gpgcheck: true
+        gpgkey: '{{ key_docker_repo_debian }}'
+
+    - name: Install utils/unix-packages for 'Debian/Ubuntu'
+      apt:
+        name: '{{ services }}'
+        state: latest
+        update_cache: true
+      register: services_results
+  when: vm_os_fam == 'Debian'
+     or vm_os_fam == 'Ubuntu'
 
 #####Block for RedHat#####
 - block:
@@ -37,22 +53,59 @@
       yum:
         name: '{{ packages }}'
         state: latest
-  when: vm_os_fam == 'RedHat'
 
-- name: Check services Status and Daemon
-  shell: systemctl status docker && systemctl is-enabled docker
-  register: services_status
-  ignore_errors: true
+    - name: Add a Docker Repository
+      yum_repository:
+        name: docker-ce-stable
+        description: Docker CE Stable - $basearch
+        baseurl: '{{ path_docker_repo_redhat }}'
+        gpgcheck: true
+        enabled: true
+        gpgkey: '{{ key_docker_repo_redhat }}'
+
+    - name: Install SDK services for 'RedHat'
+      yum:
+        name: '{{ services }}'
+        state: latest
+      register: services_results
+  when: vm_os_fam == 'RedHat'
 
 - name: Execute cmd updatedb
   shell: updatedb
 
-- name: Start and Enable Docker service
+- name: Check if docker-ce was Installed or Updated
+  set_fact:
+    docker_installed_or_updated: "{{ services_results.changes.installed | select('search', 'docker-ce') | list | length > 0 }}"
+
+- name: Start and Enable services
   service:
-    name: docker
+    name: '{{ item }}'
     state: started
     enabled: true
-  when: services_status.rc != 0
+  loop: "{{ services_results.changes.installed | reject('search', 'docker-ce') + (docker_installed_or_updated | ternary(['docker'], [])) }}"
+
+- name: Check the Status in the Docker Containers
+  shell: docker ps -q
+  register: containers_status
+  when: docker_installed_or_updated is true
+
+- name: Stop the Up Docker Containers
+  shell: docker stop {{ item }}
+  loop: '{{ containers_status.stdout_line }}'
+  when: containers_status is not skipped
+    and containers_status.stdout_lines | length > 0
+
+- name: Reboot services when Changed in Update
+  service:
+    name: '{{ item }}'
+    state: restarted
+  loop: "{{ services_results.changes.updated | reject('search', 'docker-ce') + (docker_installed_or_updated | ternary(['docker'], [])) }}"
+
+- name: Start Docker Containers
+  shell: sleep 10 & docker start {{ item }}
+  loop: "{{ containers_status.stdout_lines }}"
+  when: containers_status is not skipped
+    and containers_status.stdout_lines | length > 0
 
 - name: Set Global Configurations for Git
   git_config:

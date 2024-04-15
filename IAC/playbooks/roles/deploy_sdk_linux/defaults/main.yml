@@ -2,4 +2,14 @@
 # defaults file for deploy_sdk_linux
 github_url: 'https://api.github.com/user/keys'
 path_key:   '/root/.ssh/id_ed25519.pub'
+<<<<<<< HEAD
 title_key:  'TEST'
+=======
+title_key:  'TEST'
+path_docker_repo_redhat: https://download.docker.com/linux/centos/7/$basearch/stable
+path_docker_repo_ubuntu: https://download.docker.com/linux/ubuntu
+path_docker_repo_debian: https://download.docker.com/linux/debian
+key_docker_repo_redhat:  https://download.docker.com/linux/centos/gpg
+key_docker_repo_ubuntu:  https://download.docker.com/linux/ubuntu/gpg
+key_docker_repo_debian:  https://download.docker.com/linux/debian/gpg
+>>>>>>> devops
