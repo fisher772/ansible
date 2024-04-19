@@ -3,9 +3,25 @@
 - name: Ping test
   ping:
 
-- name: Store Facts of VM
+- name: Generate vars in a file for their use in a Scenario
+  script: gen_vers_distribs.py
+  delegate_to: localhost
+  args:
+    executable: '{{ local_py_interpreter }}'
+
+- name: Add and Insert Data vars in vars_distribs.yml for Scenario
+  include_vars:
+    file: '{{ dest_path }}'
+
+- name: Set Docker Repo URL from Template
   set_fact:
-    vm_os_fam: "{{ ansible_facts['os_family'] }}"
+    docker_repo_url: "{{ lookup('template', 'docker_repo_url.j2') | trim }}"
+  delegate_to: localhost
+
+- name: Set Docker GPG key URL from Template
+  set_fact:
+    docker_gpg_url: "{{ lookup('template', 'docker_gpg_url.j2') | trim }}"
+  delegate_to: localhost
 
 - name: Execute Install Py Modules
   pip:
@@ -27,11 +43,14 @@
 
     - name: Add Docker Repository
       apt_repository:
-        repo: 'deb [arch=amd64] {{ path_docker_repo_debian }} stable main'
+        repo: 'deb [arch=amd64] {{ docker_repo_url }} stable main'
         state: present
         update_cache: true
-        gpgcheck: true
-        gpgkey: '{{ key_docker_repo_debian }}'
+
+    - name: Add Docker GPG key
+      apt_key:
+        url: '{{ docker_gpg_url }}'
+        state: present
 
     - name: Install utils/unix-packages for 'Debian/Ubuntu'
       apt:
@@ -48,25 +67,28 @@
       yum:
         name: '*'
         state: latest
+        update_cache: true
 
     - name: Install utils/unix-apps for 'RedHat'
       yum:
         name: '{{ packages }}'
         state: latest
+        update_cache: true
 
     - name: Add a Docker Repository
       yum_repository:
         name: docker-ce-stable
-        description: Docker CE Stable - $basearch
-        baseurl: '{{ path_docker_repo_redhat }}'
+        description: Docker CE Stable
+        baseurl: '{{ docker_repo_url }}'
         gpgcheck: true
         enabled: true
-        gpgkey: '{{ key_docker_repo_redhat }}'
+        gpgkey: '{{ docker_gpg_url }}'
 
     - name: Install SDK services for 'RedHat'
       yum:
-        name: '{{ services }}'
+        name: "{{ services + ['yum-utils'] }}"
         state: latest
+        update_cache: true
       register: services_results
   when: vm_os_fam == 'RedHat'
 
