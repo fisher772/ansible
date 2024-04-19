@@ -1,1 +1,2 @@
 playbooks/linux_sdk/credentials.yml
+playbooks/*.yml
