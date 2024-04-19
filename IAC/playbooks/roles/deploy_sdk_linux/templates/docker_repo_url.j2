@@ -1,0 +1,11 @@
+{% if vm_os_distrib == 'CentOS' and vm_os_mj_ver|int in centos_vers %}
+{{ url_docker_repo_centos }}/{{ vm_os_mj_ver }}/{{ vm_os_arch }}/stable
+{% elif vm_os_distrib == 'RedHat' and vm_os_mj_ver|int in rhel_vers %}
+{{ url_docker_repo_rhel }}/{{ vm_os_mj_ver }}/{{ vm_os_arch }}/stable
+{% elif vm_os_distrib == 'Fedora' and vm_os_mj_ver|int in fedora_vers %}
+{{ url_docker_repo_fedora }}{{ vm_os_mj_ver }}/{{ vm_os_arch }}/stable
+{% elif vm_os_distrib == 'Debian' %}
+{{ url_docker_repo_debain }}{{ vm_os_release }}
+{% elif vm_os_distrib == 'Ubuntu' %}
+{{ url_docker_repo_ubuntu }}{{ vm_os_release }}
+{% endif %}
