@@ -73,6 +73,7 @@
       yum:
         name: '{{ packages }}'
         state: latest
+        update_cache: true
 
     - name: Add a Docker Repository
       yum_repository:
@@ -85,8 +86,9 @@
 
     - name: Install SDK services for 'RedHat'
       yum:
-        name: '{{ services }}'
+        name: "{{ services + ['yum-utils'] }}"
         state: latest
+        update_cache: true
       register: services_results
   when: vm_os_fam == 'RedHat'
 
