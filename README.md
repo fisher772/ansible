@@ -1,94 +1,87 @@
-Scenario "Soil/Fertilizer"
+# Структура для работы с ansible
 
-This Ansible playbook is designed to automate the deployment of SDK services on Linux systems. It supports both Debian/Ubuntu and RedHat distributions, ensuring a smooth deployment process across different Linux environments.
+Для удобства используется inventory directory structure.  
+В качестве inventory выступает каталог inventory. Структура каталогов имеет следующий вид:
+```
+├── ansible.cfg.jenkins - конфиг адаптированный под использование ansible через Jenkins job
+├── playbooks - хранилище плейбуков
+├── roles - хранилище ролей
+├── inventory - хранилище inventory
+│   └── jenkins_agent - inventory item, содержит каталоги host_vars/group_vars
+│       ├── group_vars
+│       │   └── jenkins_agent
+│       │       ├── vars - файл с переменными в открытом виде
+│       │       └── vault - файл для хранения секретов
+│       └── hosts - хостфайл, в котором перечислены узлы сети, относящиеся к данному inventory item
 
-
-Features
-
-Cross-platform support: The playbook is designed to work with both Debian/Ubuntu and RedHat distributions.
-Automated package installation: It installs necessary packages and utilities for the SDK services.
-Docker repository setup: Configures Docker repositories for both Debian/Ubuntu and RedHat distributions.
-Service management: Manages the installation, starting, and enabling of services.
-SSH key management: Handles SSH key generation, cleaning, and addition to GitHub.
-
-
-Prerequisites
-
-Ansible installed on the control node.
-SSH access to the target hosts.
-Python installed on the target hosts.
+```
 
 
-Usage
+Для запуска плейбука используется команда
+```
+ansible-playbook -i inventory/jenkins_agent playbooks/jenkins_agent.yml
+```
+Возможен вариант подключения к хостам с помощью ssh-ключа (юзер drit в jenkins), либо по логину/паролю.  
+Данные для подключения по ssh могут быть заданы в vars или vault в зависимости от подключения.  
+При запуске через Jenkins в ansible.cfg добавляются параметры roles_path и vault_password_file, чтобы определить путь к хранилищу ролей, а также избежать запроса на ввод паролей ssh-юзера и пароля от vault.
 
-Define your hosts: Specify the target hosts in the MYHOSTS variable in your inventory file or as an extra variable when running the playbook.
-Prepare credentials: Create a credentials.yml file with any necessary credentials or configuration details.
-Run the playbook: Execute the playbook using the following command:
-ansible-playbook deploy_sdk_linux.yml -i inventory.ini
-Replace inventory.ini with the path to your inventory file.
+## Пример использования
+### Условие
+Имеем некий сервер test.lan.devops.ru, на котором хотим установить docker-ce. Доступ к серверу по ssh организован от юзера devops через ключ, sudo требует ввод пароля, ключ сервисного пользователя jenkins добавлен в authorized_keys.
+### Решение
+С помощью скрипта ansible_inventory.sh создаем структуру inventory, где будут файлы hosts, vars, vault  
+```
+./ansible_inventory.sh docker_hosts
+```
+После чего в каталоге inventory будет лежать готовая для заполнения данными структура и краткий help по созданию vault. Им мы и воспользуемся:
+```
+ansible-vault create inventory/docker_hosts/group_vars/docker_hosts/vault
+```
+ВНИМАНИЕ! ПАРОЛЬ НА VAULT ДОЛЖЕН БЫТЬ ВСЕГДА ОДИН И ТОТ ЖЕ, ЧТОБЫ JENKINS МОГ С ЕГО ПОМОЩЬЮ ДЕШИФРОВАТЬ VAULT.  
+В vault заносим sudo password для юзера drit:
+```
+ansible_become_pass: $o$trongPa$$
+```
+Задаем host_vars/group_vars. Здесь нам нужно указать, как минимум, настройки подключения к хостам. В нашем случае нужно указать имя юзера в файле ./inventory/docker_hosts/group_vars/docker_hosts/vars:
 
-
-Customization
-
-Custom packages: Modify the packages variable to include any additional packages you need to install.
-Custom services: Update the services variable to include any specific services you need to manage.
-SSH key management: Adjust the SSH key management tasks according to your requirements, including the path to the SSH key file and the GitHub URL.
-
-
-Notes
-
-The playbook uses the become directive to execute tasks with elevated privileges. Ensure that the user specified in the inventory file has the necessary sudo privileges on the target hosts.
-The playbook assumes that the target hosts are accessible via SSH and that Python is installed.
-
-
-License
-
-This project is licensed under the MIT License. See the LICENSE file for details.
-
-
-==================================================================================================
-
-
-Сценарий "Почва/Удобрение"
-
-Этот плейбук Ansible предназначен для автоматизации развертывания SDK-сервисов на системах Linux. Он поддерживает как Debian/Ubuntu, так и RedHat дистрибутивы, обеспечивая плавное развертывание в различных Linux окружениях.
-
-
-Функции
-
-Поддержка кросс-платформенности: Плейбук разработан для работы как с Debian/Ubuntu, так и с RedHat дистрибутивами.
-Автоматизированная установка пакетов: Устанавливает необходимые пакеты и утилиты для SDK-сервисов.
-Настройка репозитория Docker: Конфигурирует репозитории Docker для Debian/Ubuntu и RedHat дистрибутивов.
-Управление сервисами: Управляет установкой, запуском и включением сервисов.
-Управление SSH-ключами: Обрабатывает генерацию SSH-ключей, их очистку и добавление в GitHub.
-Предварительные требования
-Ansible установлен на управляющем узле.
-Доступ по SSH к целевым хостам.
-Python установлен на целевых хостах.
-
-
-Использование
-
-Определите ваши хосты: Укажите целевые хосты в переменной MYHOSTS в вашем инвентарном файле или как дополнительную переменную при запуске плейбука.
-Подготовьте учетные данные: Создайте файл credentials.yml с любыми необходимыми учетными данными или деталями конфигурации.
-Запустите плейбук: Выполните плейбук с помощью следующей команды:
-ansible-playbook deploy_sdk_linux.yml -i inventory.ini
-Замените inventory.ini на путь к вашему инвентарному файлу.
-
-
-Настройка
-
-Пользовательские пакеты: Измените переменную packages, чтобы включить любые дополнительные пакеты, которые вам нужно установить.
-Пользовательские сервисы: Обновите переменную services, чтобы включить любые конкретные сервисы, которые вам нужно управлять.
-Управление SSH-ключами: Настройте задачи управления SSH-ключами в соответствии с вашими требованиями, включая путь к файлу SSH-ключа и URL GitHub.
-
-
-Примечания
-
-Плейбук использует директиву become для выполнения задач с повышенными привилегиями. Убедитесь, что пользователь, указанный в инвентарном файле, имеет необходимые привилегии sudo на целевых хостах.
-Плейбук предполагает, что целевые хосты доступны по SSH и что на них установлен Python.
-
-
-Лицензия
-
-Этот проект лицензирован под лицензией MIT. Смотрите файл LICENSE для деталей.
+```
+ansible_user: drit
+```
+Правим ./inventory/docker_hosts/hosts , добавляем запись о нашем сервере test.lan.ubrr.ru.  
+В каталог roles ложим все нужные роли. Пусть в нашем случае это будут yum_repos и docker_ce.  
+В каталоге playbooks создаем плейбук с именем install_docker_ce.yml, в котором будут вызываться вышеописанные роли.  
+Чтобы выполнить плейбук через jenkins, можно воспользоваться параметризированной джобой https://jenkins.lan.ubrr.ru/job/DevOps/job/Ansible/job/Run-Ansible-Playbook/  
+Если же нужно выполнять действие регулярно, то рядом можно создать джобу с нужными нам параметрами:
+```
+build job: './Run-Ansible-Playbook', parameters: [
+    string(name: 'inventoryName', value: 'docker_hosts'),
+    string(name: 'playbookName', value: 'install_docker_ce')
+]
+```
+# Получение секретов из hashicorp vault
+Ansible может получать секреты из hashicorp vault.  
+Для этого необходимо установить пакет hvac
+```
+pip install hvac
+pip3 install hvac
+```
+Далее нужно добавить в терсинальную сессию переменные окружения.  
+Для авторизации через токен:  
+```
+export VAULT_ADDR=https://vault-dev.lan.ubrr.ru:8200 
+export VAULT_AUTH_METHOD=token
+export VAULT_TOKEN=TOKENISHERE
+```
+С ldap-авторизацией не все так просто, т.к. нет нативно поддерживаемых переменных окружения для логина и пароля.  
+Обход данной проблемы заключается в самостоятельном определении и обработке переменных VAULT_USER/VAULTPASSWORD в плейбуках.
+Для авторизации через ldap:
+```
+export VAULT_ADDR=https://vault-dev.lan.ubrr.ru:8200 
+export VAULT_AUTH_METHOD=ldap
+export VAULT_USER=USERISHERE
+export VAULT_PASSWORD=PASSWORDISHERE
+```
+В итоге, остается только запустить плейбук:  
+```
+ansible-playbook -i inventory/vault/ ./playbooks/setup_vault-dev.yml 
+```

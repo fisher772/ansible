@@ -1,0 +1,28 @@
+---
+# vars file for deploy_sdk_linux
+git_cfg:
+  - { name: 'init.defaultBranch', value: 'main' }
+  - { name: 'user.name', value: 'fisher772' }
+  - { name: 'user.email', value: 'kovachvladislav99@gmail.com' }
+  - { name: 'alias.ci', value: 'commit' }
+
+packages:
+  - epel-release
+  - mc
+  - lsof
+  - htop
+  - vim
+  - python3
+  - curl
+  - wget
+  - telnet
+  - mlocate
+
+services:
+  - docker-ce
+
+py_modules:
+  - packaging
+  - setuptools
+  - virtualenv
+  - docker
