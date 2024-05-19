@@ -1,0 +1,22 @@
+varible "ssh_user" {
+  type     = string
+  default  = "packer"
+  sensitive = true
+}
+
+varible "ssh_pw" {
+  type = string
+  default = "packer"
+  sensitive = true
+}
+
+vm_os_type         = '{{ ansible_vm_os_type }}'
+http_dir           = '{{ ansible_http_dir }}'
+iso_image          = '{{ ansible_iso_image }}'
+iso_cache          = '{{ ansible_iso_cache }}'
+iso_path_storage   = '{{ ansible_iso_path_storage }}'
+vm_name            = '{{ ansible_vm_name }}'
+vm_mem             = '{{ ansible_vm_mem }}'
+vm_cp              = '{{ ansible_vm_cp }}'
+vm_storage_size    = '{{ ansible_vm_storage_size }}'
+box_path_output    = '{{ ansible_box_path_output }}'

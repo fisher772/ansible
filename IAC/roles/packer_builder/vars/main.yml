@@ -1,0 +1,13 @@
+---
+# vars file for roles/packer_builder
+packer_vm_os_type:               "centos-64"
+packer_http_dir:                 "../http"
+packer_iso_value_checksum_http:  "file:https://mirror.yandex.ru/centos-stream/9-stream/BaseOS/x86_64/iso/CentOS-Stream-9-20240506.0-x86_64-boot.iso.SHA256SUM"
+packer_iso_image:                "file:///E:/Installers. SDK/Apps DEV/ISO/CentOS-Stream-9-20240506.0-x86_64-boot.iso"
+packer_iso_image_http:           "https://mirror.yandex.ru/centos-stream/9-stream/BaseOS/x86_64/iso/CentOS-Stream-9-20240506.0-x86_64-boot.iso"
+packer_vm_name_id:               "vm-1."
+packer_vm_name:                  "centos-9-64"
+packer_vm_mem:                   "4096"
+packer_vm_cp:                    "4"
+packer_vm_storage_size:          "30720"
+packer_box_path_output:          "E:/vagrant_projects/boxes/"
