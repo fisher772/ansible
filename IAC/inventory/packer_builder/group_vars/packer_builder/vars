@@ -1,4 +1,4 @@
-# [defaults vars for ALL_SERVERS]
-ansible_user:                root
+# [defaults vars]
+ansible_user:                ansible
 ansible_port:                22
 ansible_python_interpreter:  /usr/bin/python3

@@ -1,0 +1,8 @@
+---
+# defaults file for vagrant_deployer
+
+vagrant_vm_device:    "ens192"
+vagrant_vm_interface: "eth0"
+vagrant_vm_gateway:   192.168.159.2
+vagrant_vm_ip_v4:     "192.168.159.10/16,192.168.159.2"
+vagrant_vm_hostname:  "p1.devops.ru"

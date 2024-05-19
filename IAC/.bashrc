@@ -122,9 +122,20 @@ if [ -x "$(command -v genie)" ]; then
     genie -s
 fi
 #enable var path for Ansible to remote hosts cfg file 
-export ANSIBLE_HOSTS=/home/ansible/ansible/projects/IAC/inventory/hosts
+#export ANSIBLE_HOSTS=/home/ansible/ansible/projects/IAC/inventory/hosts
 #enable var path for Ansible to Ansible cfg
 export ANSIBLE_CONFIG=/home/ansible/ansible/projects/IAC/inventory/ansible.cfg
 #enable path to venv module ansible-lint
 export PATH=$PATH:/home/ansible/ansible/ansible-lint-venv/bin/python3
-export PATH=/usr/bin:$PATH
+#enable vagrant
+export VAGRANT_WSL_ENABLE_WINDOWS_ACCESS="1"
+#enable default path vagrant
+export VAGRANT_WSL_WINDOWS_ACCESS_USER_HOME_PATH="/mnt/e/vagrant_projects"
+#enable default path provider vmware
+export PATH="$PATH:/mnt/e/VMware/VMware Workstation"
+#enable default path provider vmware
+export PATH="$PATH:/mnt/e/Virtualbox"
+#enable cmd.exe
+export PATH="$PATH:/mnt/c/Windows/System32"
+#enable path to powershell
+export PATH="$PATH:/mnt/c/Windows/System32/WindowsPowerShell/v1.0/"

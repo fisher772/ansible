@@ -1,0 +1,86 @@
+---
+# tasks file for roles/packer_builder
+- name: Ping test
+  ping:
+
+- name: Display current user
+  command: whoami
+  register: result
+- debug:
+    var: result.stdout
+
+- name: RM trash
+  shell: rm -rf $HOME/temp/*
+
+- name: Git clone
+  git:
+    repo: '{{ git_repo_gh }}'
+    dest: '{{ path_to_temp }}'
+
+- name: Add grants to scripts and converting .sh
+  shell: >
+    chmod +x {{ path_to_scripts }}/gen_checksum.sh &&
+    dos2unix {{ path_to_scripts }}/gen_checksum.sh
+
+- name: Execute scripts
+  shell: "{{ item }}"
+  loop:
+    - chmod +x "{{ path_to_scripts }}/gen_checksum.sh"
+    - "{{ path_to_scripts }}/gen_checksum.sh"
+
+- name: Insert to scenario value iso-checksum
+  script: "{{ path_to_scripts }}/insert_value_checksum.py"
+  args:
+    executable: "{{ local_py_interpreter }}"
+
+- name: Generate objects for Packer scenario
+  template:
+    src: '{{ item }}'
+    dest: '{{ local_folder }}/{{ item | basename }}'
+    mode: '0777'
+  loop: "{{ query('fileglob', '{{ src_folder }}/*.j2', wantlist=True) }}"
+
+- name: Rename objects for Packer scenario
+  command: mv '{{ item }}' "{{ item | regex_replace('.j2$', '') }}"
+  loop: "{{ lookup('fileglob', '{{ local_folder }}/*.j2', wantlist=True) }}"
+
+- name: MV and structuring templates objects
+  shell: >
+    mv "{{ path_to_temp }}/ks.cfg" {{ path_to_temp }}/http
+
+- name: Cp .hcl files to packer_vb_centos-9 dir
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ path_to_temp }}/packer_vb_centos-9/{{ item | basename }}"
+  loop: "{{ lookup('fileglob', '{{ path_to_temp }}/*.hcl', wantlist=True) }}"
+
+- name: Cp .hcl files to packer_vm_centos-9 dir
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ path_to_temp }}/packer_vm_centos-9/{{ item | basename }}"
+  loop: "{{ lookup('fileglob', '{{ path_to_temp }}/*.hcl', wantlist=True) }}"
+
+- name: Converting ks.cfg
+  shell: dos2unix {{ local_folder }}/http/ks.cfg
+
+- name: RM useless objects
+  command: rm -f '{{ path_to_temp }}/*.hcl'
+
+- name: MV obects Packer scenario in dest
+  copy:
+    src: '{{ path_to_temp }}'
+    dest: '{{ dest_folder }}'
+  delegate_to: main
+
+- name: Start Packer scenario for Virtualbox
+  shell: cd '{{ path_to_scenario }}/packer' && packer build .
+  delegate_to: main
+  when: status_virtualbox is true
+
+- name: Start Packer scenario for Vmware
+  shell: cd '{{ path_to_scenario }}/packer' && packer build .
+  delegate_to: main
+  when: status_virtualbox is true
+
+- name: RM trash
+  command: rm -f '{{ path_to_temp }}/*.hcl'

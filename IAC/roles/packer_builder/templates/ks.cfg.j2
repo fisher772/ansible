@@ -1,0 +1,54 @@
+url --url=https://mirror.yandex.ru/centos-stream/9-stream/BaseOS/x86_64/os/ --noverifyssl
+auth --enableshadow --passalgo=sha512
+lang ru_RU.UTF-8 --addsupport=en_EN.UTF-8
+keyboard --vckeymap=us --xlayouts='us','ru' --switch='grp:alt_shift_toggle'
+network --bootproto=dhcp --noipv6 --onboot=on --device=eth0
+rootpw --plaintext {{ sys_user }}
+timezone Asia/Yekaterinburg --utc
+bootloader --timeout=3 --location=mbr --append="net.ifnames=0 biosdevname=0"
+text
+skipx
+zerombr
+clearpart --all --initlabel
+autopart --nohome --nolvm --noboot
+firstboot --disabled
+services --enabled=NetworkManager,sshd
+reboot --eject
+user --groups=wheel --name={{ ssh_user_f }} --password={{ ssh_pw_f }} --plaintext
+user --groups=wheel --name={{ ssh_user_t }} --password={{ ssh_pw_t }} --plaintext
+
+%packages --ignoremissing --excludedocs
+@^minimal-environment
+@standart
+%end
+
+%post
+
+# Deactivate ICMP requests
+# firewall-cmd --zone=public --add-icmp-block=echo-request --permanent
+# firewall-cmd --reload
+
+# Active sshd
+sed -i "s/#Port 22/Port {{ ssh_port }}/g" /etc/ssh/sshd_config
+sudo sed -i 's/#HostKey \/etc\/ssh\/ssh_host_ed25519_key/HostKey \/etc\/ssh\/ssh_host_ed25519_key/g' /etc/ssh/sshd_config
+sed -i "s/#PubkeyAuthentication yes/PubkeyAuthentication yes/g" /etc/ssh/sshd_config
+sed -i '/^Port {{ ssh_port }}/a Protocol 2' /etc/ssh/sshd_config
+
+# Create ssh-key
+mkdir /home/{{ ssh_user_t }}/.ssh
+echo -e "{{ ssh_key_f }}" >> /home/{{ ssh_user_t }}/.ssh/authorized_keys
+echo -e "{{ ssh_key_t }}" >> /home/{{ ssh_user_t }}/.ssh/authorized_keys
+chown -R {{ ssh_user_t }}:{{ ssh_user_t }} /home/{{ ssh_user_t }}/.ssh
+chmod 700 /home/{{ ssh_user_t }}/.ssh
+chmod 600 /home/{{ ssh_user_t }}/.ssh/authorized_keys
+
+# Create sudoers
+echo "{{ ssh_user_f }} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/{{ ssh_user_f }}
+sed -i "s/^.*requiretty/#Defaults requiretty/" /etc/sudoers
+chmod 440 /etc/sudoers.d/{{ ssh_user_f }}
+
+echo "{{ ssh_user_t }} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/{{ ssh_user_f }}
+sed -i "s/^.*requiretty/#Defaults requiretty/" /etc/sudoers
+chmod 440 /etc/sudoers.d/{{ ssh_user_t }}
+
+%end
