@@ -1,9 +1,9 @@
 ---
 - name: Packer build VM
   hosts: '{{ MYHOSTS }}'
-  #become: true
+# become: true
   vars_files:
     - credentials.yml
 
   roles:
-      - packer_builder
+    - packer_builder

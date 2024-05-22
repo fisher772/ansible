@@ -1,0 +1,5 @@
+ansible_user: "kovach"
+ansible_port:  3333
+
+hostname:
+  name: main

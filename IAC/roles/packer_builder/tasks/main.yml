@@ -70,7 +70,6 @@
   copy:
     src: '{{ path_to_temp }}'
     dest: '{{ dest_folder }}'
-  delegate_to: main
 
 - name: Start Packer scenario for Virtualbox
   shell: cd '{{ path_to_scenario }}/packer' && packer build .

@@ -1,0 +1,18 @@
+all:
+  children:
+    MAIN_SERVER:
+      hosts:
+        main:
+          ansible_host: 192.168.1.16
+    DEVOPS_SERVERS:
+      hosts:
+        devops:
+          ansible_host: 192.168.1.200
+    DNS_SERVERS:
+      hosts:
+        dns:
+          ansible_host: 192.168.1.100
+    TEST_SERVERS:
+      hosts:
+        test:
+          ansible_host: 192.168.1.150
