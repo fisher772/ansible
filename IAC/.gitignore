@@ -1,3 +1,2 @@
 playbooks/linux_sdk/credentials.yml
 playbooks/*.yml
-roles/packer_builder/creds.pkr.auto.pkrvars.hcl
