@@ -6,4 +6,4 @@
     - credentials.yml
 
   roles:
-      - packer_builder
+    - packer_builder
