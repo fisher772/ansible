@@ -1,12 +1,9 @@
 ---
 # defaults file for roles/packer_builder
 MYHOSTS:              "localhost"
-# src_folder:           '/home/ansible/ansible/projects/IAC/roles/packer_builder/templates'
-# dest_folder:          '/home/ansible/ansible/projects/IAC/roles/packer_builder/files/Centos_9_vb'
 checksum_iso_image:   "/mnt/e/Installers. SDK/Apps DEV/ISO/CentOS-Stream-9-20240506.0-x86_64-boot.iso"
 path_to_scripts:      "/home/ansible/temp/packer/scripts"
 path_key:             "/ansible/.ssh/id_ed25519.pub"
-# local_py_interpreter: '/home/ansible/ansible/ansible-lint-venv/bin/python3'
 src_folder:           "/home/ansible/ansible/projects/IAC/roles/packer_builder/templates"
 local_folder:         "/home/ansible/temp/packer"
 dest_folder:          "/mnt/e/temp_packer_builer"
