@@ -8,10 +8,10 @@ src_folder:           "/home/ansible/ansible/projects/IAC/roles/packer_builder/t
 local_folder:         "/home/ansible/temp/packer"
 dest_folder:          "/mnt/e/temp_packer_builer"
 local_py_interpreter: "/home/ansible/ansible/ansible-lint-venv/bin/python3"
-path_to_scenario:     "E:/temp_packer_builer"
+path_to_scenario:     E:\temp_packer_builer
 
-status_virtualbox:    "false"
-status_vmware:        "true"
+status_virtualbox:    false
+status_vmware:        true
 
 git_repo_gh:          "git@github.com:fisher772/packer.git"
 git_repo_gitverse:    "ssh://git@gitverse.ru:2222/fisher/packer.git"

@@ -1,16 +1,15 @@
 ---
 # tasks file for roles/packer_builder
 - name: Ping test
-  ping:
+  win_ping:
+  delegate_to: main
 
-- name: Display current user
-  command: whoami
-  register: result
-- debug:
-    var: result.stdout
-
-- name: RM trash
-  shell: rm -rf $HOME/temp/*
+- name: Remove directory structure
+  win_file:
+    path: '{{ path_to_scenario }}'
+    state: absent
+  ignore_errors: true
+  delegate_to: main
 
 - name: Git clone
   git:
@@ -28,11 +27,6 @@
     - chmod +x "{{ path_to_scripts }}/gen_checksum.sh"
     - "{{ path_to_scripts }}/gen_checksum.sh"
 
-- name: Insert to scenario value iso-checksum
-  script: "{{ path_to_scripts }}/insert_value_checksum.py"
-  args:
-    executable: "{{ local_py_interpreter }}"
-
 - name: Generate objects for Packer scenario
   template:
     src: '{{ item }}'
@@ -48,38 +42,48 @@
   shell: >
     mv "{{ path_to_temp }}/ks.cfg" {{ path_to_temp }}/http
 
-- name: Cp .hcl files to packer_vb_centos-9 dir
-  ansible.builtin.copy:
+- name: CP .hcl files to packer_vb_centos-9 dir
+  copy:
     src: "{{ item }}"
     dest: "{{ path_to_temp }}/packer_vb_centos-9/{{ item | basename }}"
   loop: "{{ lookup('fileglob', '{{ path_to_temp }}/*.hcl', wantlist=True) }}"
 
-- name: Cp .hcl files to packer_vm_centos-9 dir
-  ansible.builtin.copy:
+- name: CP .hcl files to packer_vm_centos-9 dir
+  copy:
     src: "{{ item }}"
     dest: "{{ path_to_temp }}/packer_vm_centos-9/{{ item | basename }}"
   loop: "{{ lookup('fileglob', '{{ path_to_temp }}/*.hcl', wantlist=True) }}"
 
 - name: Converting ks.cfg
-  shell: dos2unix {{ local_folder }}/http/ks.cfg
+  shell: dos2unix "{{ local_folder }}/http/ks.cfg"
 
-- name: RM useless objects
-  command: rm -f '{{ path_to_temp }}/*.hcl'
+- name: Insert to scenario value iso-checksum
+  script: "{{ path_to_scripts }}/insert_value_checksum.py"
+  args:
+    executable: "{{ local_py_interpreter }}"
 
-- name: MV obects Packer scenario in dest
+- name: RM useless objects .hcl
+  shell: rm -f "{{ path_to_temp }}"/*.hcl
+
+- name: CP obects Packer scenario in dest
+  become: true
   copy:
-    src: '{{ path_to_temp }}'
-    dest: '{{ dest_folder }}'
+    src: /home/ansible/temp/
+    dest: /mnt/e/temp_packer_builer/
 
-- name: Start Packer scenario for Virtualbox
-  shell: cd '{{ path_to_scenario }}/packer' && packer build .
+- name: RM temp trash
+  shell: rm -rf $HOME/temp/*
+
+- name: Start Packer scenario for Virtualbox on Windows
+  win_shell: |
+    Set-Location "{{ path_to_scenario }}\packer\packer_vb_centos-9"
+    & packer build .
   delegate_to: main
-  when: status_virtualbox is true
+  when: status_vmware is true
 
-- name: Start Packer scenario for Vmware
-  shell: cd '{{ path_to_scenario }}/packer' && packer build .
+- name: Start Packer scenario for VMware on Windows
+  win_shell: |
+    Set-Location "{{ path_to_scenario }}\packer\packer_vm_centos-9"
+    & packer build .
   delegate_to: main
-  when: status_virtualbox is true
-
-- name: RM trash
-  command: rm -f '{{ path_to_temp }}/*.hcl'
+  when: status_vmware is true
