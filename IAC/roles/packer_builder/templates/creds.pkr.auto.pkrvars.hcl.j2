@@ -1,7 +1,7 @@
 ssh_user        = "{{ ssh_user_t }}"
 ssh_pw          = "{{ ssh_pw_t }}"
-packer_ssh_port = "{{ packer_ssh_port }}"
-vnc_port_min    = "{{ packer_vnc_port_min }}"
-vnc_port_max    = "{{ packer_vnc_port_max }}"
-http_port_min   = "{{ packer_http_port_min }}"
-http_port_max   = "{{ packer_http_port_max }}"
+ssh_port        = {{ packer_ssh_port }}
+vnc_port_min    = {{ packer_vnc_port_min }}
+vnc_port_max    = {{ packer_vnc_port_max }}
+http_port_min   = {{ packer_http_port_min }}
+http_port_max   = {{ packer_http_port_max }}

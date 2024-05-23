@@ -1,5 +1,7 @@
-ansible_user: "kovach"
-ansible_port:  3333
+ansible_user:       kovach
+ansible_port:       3333
+ansible_connection: ssh
+ansible_shell_type: cmd
 
 hostname:
   name: main

@@ -1,7 +1,6 @@
 ---
 - name: Packer build VM
   hosts: '{{ MYHOSTS }}'
-# become: true
   vars_files:
     - credentials.yml
 
