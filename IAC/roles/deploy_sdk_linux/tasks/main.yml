@@ -7,11 +7,11 @@
   script: gen_vers_distribs.py
   delegate_to: localhost
   args:
-    executable: '{{ local_py_interpreter }}'
+    executable: "{{ local_py_interpreter }}"
 
 - name: Add and Insert Data vars in vars_distribs.yml for Scenario
   include_vars:
-    file: '{{ dest_path }}'
+    file: "{{ dest_path }}"
 
 - name: Set Docker Repo URL from Template
   set_fact:
@@ -25,7 +25,7 @@
 
 - name: Execute Install Py Modules
   pip:
-    name: '{{ py_modules }}'
+    name: "{{ py_modules }}"
     state: latest
 
 #####Block for Debian/Ubuntu#####
@@ -37,29 +37,29 @@
 
     - name: Install utils/unix-packages for 'Debian/Ubuntu'
       apt:
-        name: '{{ packages }}'
+        name: "{{ packages }}"
         state: latest
         update_cache: true
 
     - name: Add Docker Repository
       apt_repository:
-        repo: 'deb [arch=amd64] {{ docker_repo_url }} stable main'
+        repo: "deb [arch=amd64] {{ docker_repo_url }} stable main"
         state: present
         update_cache: true
 
     - name: Add Docker GPG key
       apt_key:
-        url: '{{ docker_gpg_url }}'
+        url: "{{ docker_gpg_url }}"
         state: present
 
     - name: Install utils/unix-packages for 'Debian/Ubuntu'
       apt:
-        name: '{{ services }}'
+        name: "{{ services }}"
         state: latest
         update_cache: true
       register: services_results
-  when: vm_os_fam == 'Debian'
-     or vm_os_fam == 'Ubuntu'
+  when: vm_os_fam == "Debian"
+     or vm_os_fam == "Ubuntu"
 
 #####Block for RedHat#####
 - block:
@@ -71,7 +71,7 @@
 
     - name: Install utils/unix-apps for 'RedHat'
       yum:
-        name: '{{ packages }}'
+        name: "{{ packages }}"
         state: latest
         update_cache: true
 
@@ -79,10 +79,10 @@
       yum_repository:
         name: docker-ce-stable
         description: Docker CE Stable
-        baseurl: '{{ docker_repo_url }}'
+        baseurl: "{{ docker_repo_url }}"
         gpgcheck: true
         enabled: true
-        gpgkey: '{{ docker_gpg_url }}'
+        gpgkey: "{{ docker_gpg_url }}"
 
     - name: Install SDK services for 'RedHat'
       yum:
@@ -90,7 +90,7 @@
         state: latest
         update_cache: true
       register: services_results
-  when: vm_os_fam == 'RedHat'
+  when: vm_os_fam == "RedHat"
 
 - name: Execute cmd updatedb
   shell: updatedb
@@ -101,7 +101,7 @@
 
 - name: Start and Enable services
   service:
-    name: '{{ item }}'
+    name: "{{ item }}"
     state: started
     enabled: true
   loop: "{{ services_results.changes.installed | reject('search', 'docker-ce') + (docker_installed_or_updated | ternary(['docker'], [])) }}"
@@ -112,14 +112,14 @@
   when: docker_installed_or_updated is true
 
 - name: Stop the Up Docker Containers
-  shell: docker stop {{ item }}
-  loop: '{{ containers_status.stdout_line }}'
+  shell: docker stop "{{ item }}"
+  loop: "{{ containers_status.stdout_line }}"
   when: containers_status is not skipped
     and containers_status.stdout_lines | length > 0
 
 - name: Reboot services when Changed in Update
   service:
-    name: '{{ item }}'
+    name: "{{ item }}"
     state: restarted
   loop: "{{ services_results.changes.updated | reject('search', 'docker-ce') + (docker_installed_or_updated | ternary(['docker'], [])) }}"
 
@@ -131,10 +131,10 @@
 
 - name: Set Global Configurations for Git
   git_config:
-    name: '{{ item.name }}'
-    value: '{{ item.value }}'
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
     scope: global
-  loop: '{{ git_cfg }}'
+  loop: "{{ git_cfg }}"
   no_log: true
 
 - name: Read SSH key from file on the remote host
@@ -152,7 +152,7 @@
 
 - name: Check SSH Key to GitHub
   uri:
-    url: '{{ github_url }}'
+    url: "{{ github_url }}"
     method: GET
     body_format: json
     headers:
@@ -166,19 +166,19 @@
 - name: Check each Key in the list
   set_fact:
     key_exists: true
-  loop: '{{ deployed_keys.json }}'
+  loop: "{{ deployed_keys.json }}"
   when: clean_ssh_key in item.key
   no_log: true
 
 - name: Add SSH Key to GitHub
   uri:
-    url: '{{ github_url }}'
+    url: "{{ github_url }}"
     method: POST
     body_format: json
     headers:
       Authorization: "token {{ github_token }}"
     body:
-      title: '{{ title_key }}'
-      key: '{{ ssh_key }}'
+      title: "{{ title_key }}"
+      key: "{{ ssh_key }}"
     status_code: 201
   when: not key_exists

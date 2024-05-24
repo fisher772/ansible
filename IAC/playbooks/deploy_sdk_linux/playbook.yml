@@ -1,6 +1,6 @@
 ---
 - name: Deploy SDK for Linux
-  hosts: '{{ MYHOSTS }}'
+  hosts: "{{ MYHOSTS }}"
   become: true
   vars_files:
     - credentials.yml
