@@ -6,9 +6,9 @@ path_to_scripts:      "/home/ansible/temp/packer/scripts"
 path_key:             "/ansible/.ssh/id_ed25519.pub"
 src_folder:           "/home/ansible/ansible/projects/IAC/roles/packer_builder/templates"
 local_folder:         "/home/ansible/temp/packer"
-dest_folder:          "/mnt/e/temp_packer_builer"
+dest_folder:          "/mnt/e/temp_packer_builder"
 local_py_interpreter: "/home/ansible/ansible/ansible-lint-venv/bin/python3"
-path_to_scenario:     E:\temp_packer_builer
+path_to_scenario:     E:\temp_packer_builder
 
 status_virtualbox:    false
 status_vmware:        true
