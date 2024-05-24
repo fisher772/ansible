@@ -4,17 +4,10 @@
   win_ping:
   delegate_to: main
 
-- name: Remove directory structure
-  win_file:
-    path: '{{ path_to_scenario }}'
-    state: absent
-  ignore_errors: true
-  delegate_to: main
-
 - name: Git clone
   git:
-    repo: '{{ git_repo_gh }}'
-    dest: '{{ path_to_temp }}'
+    repo: "{{ git_repo_gh }}"
+    dest: "{{ path_to_temp }}"
 
 - name: Add grants to scripts and converting .sh
   shell: >
@@ -29,13 +22,13 @@
 
 - name: Generate objects for Packer scenario
   template:
-    src: '{{ item }}'
-    dest: '{{ local_folder }}/{{ item | basename }}'
-    mode: '0777'
+    src: "{{ item }}"
+    dest: "{{ local_folder }}/{{ item | basename }}"
+    mode: "0777"
   loop: "{{ query('fileglob', '{{ src_folder }}/*.j2', wantlist=True) }}"
 
 - name: Rename objects for Packer scenario
-  command: mv '{{ item }}' "{{ item | regex_replace('.j2$', '') }}"
+  command: mv "{{ item }}" "{{ item | regex_replace('.j2$', '') }}"
   loop: "{{ lookup('fileglob', '{{ local_folder }}/*.j2', wantlist=True) }}"
 
 - name: MV and structuring templates objects
@@ -63,15 +56,16 @@
     executable: "{{ local_py_interpreter }}"
 
 - name: RM useless objects .hcl
-  shell: rm -f "{{ path_to_temp }}"/*.hcl
+  shell: rm -f {{ path_to_temp }}/*.hcl
 
 - name: CP obects Packer scenario in dest
   become: true
   copy:
-    src: /home/ansible/temp/
-    dest: /mnt/e/temp_packer_builer/
+    src: "{{ local_folder }}"
+    dest: "{{ path_to_scenario }}"
+    force: true
 
-- name: RM temp trash
+- name: RM git templates
   shell: rm -rf $HOME/temp/*
 
 - name: Start Packer scenario for Virtualbox on Windows
@@ -79,7 +73,7 @@
     Set-Location "{{ path_to_scenario }}\packer\packer_vb_centos-9"
     & packer build .
   delegate_to: main
-  when: status_vmware is true
+  when: status_vitualbox is true
 
 - name: Start Packer scenario for VMware on Windows
   win_shell: |
@@ -87,3 +81,10 @@
     & packer build .
   delegate_to: main
   when: status_vmware is true
+
+- name: Remove directory structure
+  win_file:
+    path: "{{ path_to_scenario }}"
+    state: absent
+  ignore_errors: true
+  delegate_to: main

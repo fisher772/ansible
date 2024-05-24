@@ -1,7 +1,59 @@
 ---
-# tasks file for vagrant_deployer
+# tasks file for roles/vagrant_deployer
 - name: Ping test
-  ping:
+  win_ping:
+  delegate_to: main
 
-- name: Start
-  shell: 
+- name: Clean cache for Vagrant
+  win_shell: |
+    Set-Location "{{ path_to_scenario }}\vagrant"
+    & vagrant global-status --prune
+  delegate_to: main
+
+- name: Git clone
+  git:
+    repo: "{{ git_repo_gh }}"
+    dest: "{{ path_to_temp }}"
+
+- name: Add grants to scripts and converting .sh
+  shell: >
+    chmod +x {{ path_to_scripts }}/config_network.sh &&
+    dos2unix {{ path_to_scripts }}/config_network.sh
+
+- name: RM git vars template
+  shell: rm -f {{ path_to_temp }}/variables.yml
+
+- name: Generate objects for Vagrant scenario
+  template:
+    src: "{{ item }}"
+    dest: "{{ local_folder }}/{{ item | basename }}"
+    mode: "0777"
+  loop: "{{ query('fileglob', '{{ src_folder }}/*.j2', wantlist=True) }}"
+
+- name: Rename objects for Vagrant scenario
+  command: mv "{{ item }}" "{{ item | regex_replace('.j2$', '') }}"
+  loop: "{{ lookup('fileglob', '{{ local_folder }}/*.j2', wantlist=True) }}"
+
+- name: CP obects Vagrant scenario in dest
+  become: true
+  copy:
+    src: "{{ local_folder }}"
+    dest: "{{ dest_folder }}"
+    force: true
+
+- name: RM git templates
+  shell: rm -rf $HOME/temp/*
+
+- name: Start Vagrant scenario for Virtualbox on Windows
+  win_shell: |
+    Set-Location "{{ path_to_scenario }}\vagrant"
+    & vagrant up --provider virtualbox
+  delegate_to: main
+  when: status_virtualbox is true
+
+- name: Start Packer scenario for VMware on Windows
+  win_shell: |
+    Set-Location "{{ path_to_scenario }}\vagrant"
+    & vagrant up --provider vmware_desktop
+  delegate_to: main
+  when: status_vmware is true

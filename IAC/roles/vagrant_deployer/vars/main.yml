@@ -1,2 +1,25 @@
 ---
 # vars file for vagrant_deployer
+
+# ports
+vagrant_ssh_guest_port:    59022
+vagrant_http_guest_port:   59080
+vagrant_https_guest_port:  59443
+vagrant_rdp_guest_port:    59389
+
+vagrant_ssh_host_port:     22
+vagrant_http_host_port:    80
+vagrant_https_host_port:   443
+vagrant_rdp_host_port:     3389
+
+# network
+vagrant_net_ip:            "192.168.1.40/24"
+vagrant_net_dns:           "192.168.1.1"
+vagrant_net_gateway:       "192.168.1.1"
+
+# vmware
+vagrant_vm_vnc_port:       5955
+
+# path to boxes
+vagrant_vb_path_boxes:     "E:/vagrant_projects/boxes/vb-1.centos-9-64.box"
+vagrant_vm_path_boxes:     "E:/vagrant_projects/boxes/vm-1.centos-9-64.box"

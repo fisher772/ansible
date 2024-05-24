@@ -1,8 +1,17 @@
 ---
 # defaults file for vagrant_deployer
+MYHOSTS:              "localhost"
+path_key:             "/ansible/.ssh/id_ed25519.pub"
+src_folder:           "/home/ansible/ansible/projects/IAC/roles/vagrant_deployer/templates"
+local_folder:         "/home/ansible/temp/vagrant"
+dest_folder:          "/mnt/e/temp_vagrant_deployer"
+local_py_interpreter: "/home/ansible/ansible/ansible-lint-venv/bin/python3"
+path_to_scenario:     E:\temp_vagrant_deployer
+path_to_scripts:      "/home/ansible/temp/vagrant/scripts"
 
-vagrant_vm_device:    "ens192"
-vagrant_vm_interface: "eth0"
-vagrant_vm_gateway:   192.168.159.2
-vagrant_vm_ip_v4:     "192.168.159.10/16,192.168.159.2"
-vagrant_vm_hostname:  "p1.devops.ru"
+status_virtualbox:    false
+status_vmware:        true
+
+git_repo_gh:          "git@github.com:fisher772/vagrant.git"
+git_repo_gitverse:    "ssh://git@gitverse.ru:2222/fisher/vagrant.git"
+path_to_temp:         "/home/ansible/temp/vagrant"

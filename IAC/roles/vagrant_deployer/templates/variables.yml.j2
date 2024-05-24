@@ -1,0 +1,29 @@
+# default
+ssh_guest_port:    {{ vagrant_ssh_guest_port }}
+http_guest_port:   {{ vagrant_http_guest_port }}
+https_guest_port:  {{ vagrant_https_guest_port }}
+rdp_guest_port:    {{ vagrant_rdp_guest_port }}
+
+ssh_host_port:     {{ vagrant_ssh_host_port }}
+http_host_port:    {{ vagrant_http_host_port }}
+https_host_port:   {{ vagrant_https_host_port }}
+rdp_host_port:     {{ vagrant_rdp_host_port }}
+
+# network
+net_ip:            "{{ vagrant_net_ip }}"
+net_dns:           "{{ vagrant_net_dns }}"
+net_gateway:       "{{ vagrant_net_gateway }}"
+
+# vmware
+vm_vnc_port:       {{ vagrant_vm_vnc_port }}
+
+# path to boxes
+path_boxes:        {% if status_virtualbox is true %} 
+                   "{{ vagrant_vb_path_boxes }}"
+                   {% elif status_vmware is true %}
+                   "{{ vagrant_vm_path_boxes }}"
+                   {% endif %}
+
+# creds
+ssh_user:          "{{ vagrant_ssh_user }}"
+ssh_password:      "{{ vagrant_ssh_password }}"

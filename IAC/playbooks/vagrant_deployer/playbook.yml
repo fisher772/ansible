@@ -1,0 +1,8 @@
+---
+- name: Packer deploy VM
+  hosts: '{{ MYHOSTS }}'
+  vars_files:
+    - credentials.yml
+
+  roles:
+    - vagrant_deployer
