@@ -1,2 +1,2 @@
-playbooks/linux_sdk/credentials.yml
-playbooks/*.yml
+# roles/**/*cred*
+# plyabooks/**/*cred*
