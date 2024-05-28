@@ -16,6 +16,11 @@
         state: latest
         update_cache: true
 
+    - name: Open port for DNS traffic on 'Debian/Ubuntu'
+      ufw:
+        rule: allow
+        port: 161-162/udp
+
     - name: Install DNS services for 'Debian/Ubuntu'
       apt:
         name: "{{ services_other }}"
@@ -41,6 +46,12 @@
         name: "{{ packages + ['yum-utils'] + ['bind-utils'] }}"
         state: latest
         update_cache: true
+
+    - name: Open port for DNS traffic on 'RedHat'
+      ansible.posix.firewalld:
+        port: 53/udp
+        permanent: true
+        state: enabled
 
     - name: Install DNS services for 'RedHat'
       yum:
