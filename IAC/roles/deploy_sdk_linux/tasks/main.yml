@@ -52,7 +52,7 @@
         url: "{{ docker_gpg_url }}"
         state: present
 
-    - name: Install utils/unix-packages for 'Debian/Ubuntu'
+    - name: Install SDK services for 'Debian/Ubuntu'
       apt:
         name: "{{ services }}"
         state: latest
@@ -69,7 +69,7 @@
         state: latest
         update_cache: true
 
-    - name: Install utils/unix-apps for 'RedHat'
+    - name: Install utils/unix-packages for 'RedHat'
       yum:
         name: "{{ packages }}"
         state: latest
@@ -99,35 +99,46 @@
   set_fact:
     docker_installed_or_updated: "{{ services_results.changes.installed | select('search', 'docker-ce') | list | length > 0 }}"
 
-- name: Start and Enable services
-  service:
-    name: "{{ item }}"
-    state: started
-    enabled: true
-  loop: "{{ services_results.changes.installed | reject('search', 'docker-ce') + (docker_installed_or_updated | ternary(['docker'], [])) }}"
+- name: Add ansible user to Docker group
+  user:
+    name: "{{ docker_user }}"
+    password: "{{ docker_pw }}"
+    generate_ssh_key: true
+    ssh_key_type: ed25519
+    ssh_key_file: .ssh/id_ed25519
+    groups: docker
 
-- name: Check the Status in the Docker Containers
-  shell: docker ps -q
-  register: containers_status
-  when: docker_installed_or_updated is true
+#####Block for Docker cmd#####
+- block:
+    - name: Start and Enable services
+      service:
+        name: "{{ item }}"
+        state: started
+        enabled: true
+      loop: "{{ services_results.changes.installed | reject('search', 'docker-ce') + (docker_installed_or_updated | ternary(['docker'], [])) }}"
 
-- name: Stop the Up Docker Containers
-  shell: docker stop "{{ item }}"
-  loop: "{{ containers_status.stdout_line }}"
-  when: containers_status is not skipped
-    and containers_status.stdout_lines | length > 0
+    - name: Check the Status in the Docker Containers
+      shell: docker ps -q
+      register: containers_status
+      when: docker_installed_or_updated is true
 
-- name: Reboot services when Changed in Update
-  service:
-    name: "{{ item }}"
-    state: restarted
-  loop: "{{ services_results.changes.updated | reject('search', 'docker-ce') + (docker_installed_or_updated | ternary(['docker'], [])) }}"
+    - name: Stop the Up Docker Containers
+      shell: docker stop "{{ item }}"
+      loop: "{{ containers_status.stdout_line }}"
+      when: containers_status is not skipped and containers_status.stdout_lines | length > 0
 
-- name: Start Docker Containers
-  shell: sleep 10 & docker start {{ item }}
-  loop: "{{ containers_status.stdout_lines }}"
-  when: containers_status is not skipped
-    and containers_status.stdout_lines | length > 0
+    - name: Reboot services when Changed in Update
+      service:
+        name: "{{ item }}"
+        state: restarted
+      loop: "{{ services_results.changes.updated | reject('search', 'docker-ce') + (docker_installed_or_updated | ternary(['docker'], [])) }}"
+
+    - name: Start Docker Containers
+      shell: sleep 10 && docker start {{ item }}
+      loop: "{{ containers_status.stdout_lines }}"
+      when: containers_status is not skipped and containers_status.stdout_lines | length > 0
+  become: false
+  become_user: "{{ docker_user }}"
 
 - name: Set Global Configurations for Git
   git_config:

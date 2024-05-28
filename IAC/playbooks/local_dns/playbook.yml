@@ -1,0 +1,7 @@
+---
+- name: Deploy local DNS server
+  become: true
+  hosts: "{{ MYLOCALHOST }}"
+
+  roles:
+    - { role: local_dns, when: ansible_system == 'Linux' }
