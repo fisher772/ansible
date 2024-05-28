@@ -11,11 +11,10 @@ packages:
   - wget
   - telnet
   - mlocate
+  - dnstop
 
 services_redhat:
   - bind
-  - dnstop
 
 services_other:
   - bind9
-  - dnstop
