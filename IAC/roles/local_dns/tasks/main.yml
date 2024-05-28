@@ -19,7 +19,7 @@
     - name: Open port for DNS traffic on 'Debian/Ubuntu'
       ufw:
         rule: allow
-        port: 161-162/udp
+        port: 53/udp
 
     - name: Install DNS services for 'Debian/Ubuntu'
       apt:
