@@ -1,0 +1,24 @@
+---
+# handlers file for local_dns
+- block:
+    - name: Started services if installed
+      service:
+        name: "{{ item }}"
+        state: started
+        enabled: true
+      loop: "{{ services_results.changes.installed }}"
+      when: item.is_installed
+
+    - name: Restarted services if updated
+      service:
+        name: "{{ item }}"
+        state: restarted
+      loop: "{{ services_results.changes.updated }}"
+      when: item.is_updated
+
+    - name: Restart Bind
+      service:
+        name: bind
+        state: restarted
+  become: false
+  become_user: "{{ dns_user }}"
