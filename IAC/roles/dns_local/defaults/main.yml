@@ -2,8 +2,6 @@
 # defaults file for local_dns
 MYLOCALHOST:            "test"
 
-git_status:             false
-
 dns_zone_name:          "devops.ru"
 dns_id_prefix:          "ns1"
 
