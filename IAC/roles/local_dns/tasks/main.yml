@@ -5,7 +5,7 @@
 
 #####Block for Debian/Ubuntu#####
 - block:
-    - name: Execute Update unix Packages 'Debian/Ubuntu'
+    - name: Execute Upgrade unix Packages 'Debian/Ubuntu'
       apt:
         name: upgrade
         state: latest
