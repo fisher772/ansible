@@ -1,0 +1,22 @@
+---
+# handlers file for local_dns
+- block:
+    - name: Started services if installed
+      service:
+        name: named
+        state: started
+        enabled: true
+      when: services_results.changes.installed is defined
+
+    - name: Restarted services if updated
+      service:
+        name: named
+        state: restarted
+      when: services_results.changes.updated is defined
+
+    - name: Restart Bind
+      service:
+        name: named
+        state: restarted
+  become: false
+  become_user: "{{ dns_user }}"
