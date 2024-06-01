@@ -2,10 +2,6 @@
 # defaults file for deploy_sdk_linux
 MYHOSTS:                "test"
 
-docker_mirros:          false
-
-path_docker_cfg:        "/etc/docker"
-
 git_status:             false
 dest_path:              "/home/ansible/ansible/projects/IAC/playbooks/roles/deploy_sdk_linux/vars/vers_distribs.yml"
 github_url:             "https://api.github.com/user/keys"

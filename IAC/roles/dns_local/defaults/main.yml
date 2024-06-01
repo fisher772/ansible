@@ -1,6 +1,6 @@
 ---
 # defaults file for local_dns
-MYHOSTS:                "test"
+MYLOCALHOST:            "test"
 
 dns_zone_name:          "devops.ru"
 dns_id_prefix:          "ns1"
