@@ -25,3 +25,10 @@
       when: containers_status is not skipped and containers_status.stdout_lines | length > 0
   become: false
   become_user: "{{ docker_user }}"
+
+- name: Add mirros Docker hub
+  copy:
+    src: daemon.json
+    dest: "{{ path_docker_cfg }}"
+  when: docker_mirros is true and
+        services_results.changes.installed is defined

@@ -1,7 +1,7 @@
 ---
 - name: Deploy local DNS server
   become: true
-  hosts: "{{ MYLOCALHOST }}"
+  hosts: "{{ MYHOSTS }}"
   vars_files:
     - credentials.yml
 
