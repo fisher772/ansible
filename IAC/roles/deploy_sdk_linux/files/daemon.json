@@ -1,0 +1,8 @@
+{ 
+  "registry-mirrors": [ 
+    "https://dockerhub1.beget.com",
+    "https://mirror.gcr.io",
+    "https://daocloud.io",
+    "https://registry.docker-cn.com"
+  ] 
+}

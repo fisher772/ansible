@@ -25,3 +25,9 @@
       when: containers_status is not skipped and containers_status.stdout_lines | length > 0
   become: false
   become_user: "{{ docker_user }}"
+
+- name: Add a Docker mirrors
+  copy:
+    src: daemon.json
+    dest: /etc/docker
+  when: docker_mirrors_status is true

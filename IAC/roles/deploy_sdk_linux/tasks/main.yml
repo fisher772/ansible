@@ -108,6 +108,7 @@
     ssh_key_file: .ssh/id_ed25519
     groups: docker
   notify:
+    - Add a Docker mirrors
     - Start and Enable services
 
 - name: Check the Status in the Docker Containers
