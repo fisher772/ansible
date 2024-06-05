@@ -1,5 +1,5 @@
 ---
-# vars file for vpn_l2tp
+# vars file for local_dns
 packages:
   - epel-release
   - mc
@@ -9,10 +9,12 @@ packages:
   - python3
   - curl
   - wget
-  - iptables
   - telnet
   - mlocate
+  - dnstop
 
-services:
-  - strongswan
-  - xl2tpd
+services_redhat:
+  - bind
+
+services_other:
+  - bind9

@@ -1,30 +1,22 @@
 ---
-# handlers file for vpn_l2tp
+# handlers file for local_dns
 - block:
     - name: Started services if installed
       service:
-        name: strongswan
+        name: named
         state: started
         enabled: true
       when: services_results.changes.installed is defined
 
     - name: Restarted services if updated
       service:
-        name: strongswan
+        name: named
         state: restarted
       when: services_results.changes.updated is defined
 
-    - name: Restart Services
+    - name: Restart Bind
       service:
-        name: 
-          - strongswan
-          - xl2tpd
+        name: named
         state: restarted
-    
-    - name: Enable and Start Network-rules 'startup-ipsec.service'
-      service:
-        name: startup-ipsec.service
-        state: started
-        enabled: true
   become: false
-  become_user: "{{ vpn_user }}"
+  become_user: "{{ dns_user }}"

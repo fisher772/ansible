@@ -1,7 +1,8 @@
 { 
-  "registry-mirrors": [ 
-    "https://dockerhub1.beget.com",
+  "registry-mirrors": [
+    "cr.yandex/mirror",
     "https://mirror.gcr.io",
+    "https://dockerhub1.beget.com",
     "https://daocloud.io",
     "https://registry.docker-cn.com"
   ] 

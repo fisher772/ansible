@@ -1,2 +1,168 @@
 ---
 # tasks file for vpn_l2tp
+- name: Test ping
+  ping:
+
+- name: Create Users Groups
+  group:
+    name:
+      - "{{ ansible_group }}"
+      - "{{ vpn_group }}"
+    state: present
+
+- name: Create User and SSH key for Ansible
+  user:
+    name: "{{ ansible_user }}"
+    password: "{{ ansible_pw }}"
+    groups: "{{ ansible_group }}"
+    append: true
+    state: present
+    createhome: true
+    generate_ssh_key: true
+    ssh_key_type: "ed25519"
+    ssh_key_file: .ssh/id_ed25519
+
+- name: Allow the Ansible user to run any commands as grant_secret user
+  community.general.sudoers:
+    name: "{{ ansible_user }}"
+    state: present
+    user: "{{ ansible_user }}"
+    runas: "{{ grant_secret }}"
+    commands: ALL
+
+- name: Create User and SSH key for VPN
+  user:
+    name: "{{ vpn_user }}"
+    password: "{{ vpn_pw }}"
+    groups: "{{ vpn_group }}"
+    createhome: true
+    generate_ssh_key: true
+    ssh_key_type: "ed25519"
+    ssh_key_file: .ssh/id_ed25519
+
+- name: Allow the VPN user to run any commands as grant_secret user
+  community.general.sudoers:
+    name: "{{ vpn_user }}"
+    state: present
+    user: "{{ vpn_pw }}"
+    runas: "{{ grant_secret }}"
+    commands:
+      - /bin/systemctl start *
+      - /bin/systemctl stop *
+      - /bin/systemctl restart *
+      - /bin/systemctl reload *
+      - /bin/systemctl status *
+      - /bin/systemctl daemon-reload
+
+#####Block for Debian/Ubuntu#####
+- block:
+    - name: Execute Upgrade unix Packages 'Debian/Ubuntu'
+      apt:
+        name: upgrade
+        state: latest
+
+    - name: Install utils/unix-packages for 'Debian/Ubuntu'
+      apt:
+        name: "{{ packages }}"
+        state: latest
+
+    - name: Install DNS services for 'Debian/Ubuntu'
+      apt:
+        name: "{{ services }}"
+        state: latest
+      register: services_results
+      notify:
+        - Started services if installed
+        - Started services if updated
+  update_cache: true
+  when: vm_os_fam == "Debian"
+     or vm_os_fam == "Ubuntu"
+
+#####Block for RedHat#####
+- block:
+    - name: Execute Update unix Packages 'RedHat'
+      yum:
+        name: '*'
+        state: latest
+
+    - name: Install utils/unix-packages for 'RedHat'
+      yum:
+        name: "{{ packages + ['yum-utils'] }}"
+        state: latest
+
+    - name: Install DNS services for 'RedHat'
+      yum:
+        name: "{{ services }}"
+        state: latest
+      register: services_results
+      notify:
+        - Started services if installed
+        - Restarted services if updated
+  update_cache: true
+  when: vm_os_fam == "RedHat"
+
+#####Block for CP config settings and Start/Enable/Reboot services#####
+- block:
+    - name: CP ipsec.config for 'Debian/Ubuntu'
+      copy:
+        src: ipsec.conf
+        dest: /etc
+        mode: "0644"
+      when: vm_os_fam == "Debian"
+         or vm_os_fam == "Ubuntu"
+
+    - name: CP ipsec.config for 'RedHat'
+      copy:
+        src: ipsec.conf
+        dest: /etc/strongswan
+        mode: "0644"
+      when: vm_os_fam == "RedHat"
+
+    - name: CP ipsec.secret template for 'Debian/Ubuntu'
+      template:
+        src: ipsec.secret.j2
+        dest: /etc/ipsec.secret
+        mode: "0600"
+      when: vm_os_fam == "Debian"
+         or vm_os_fam == "Ubuntu"
+
+    - name: CP ipsec.secret template for 'RedHat'
+      template:
+        src: ipsec.secret.j2
+        dest: /etc/strongswan/ipsec.secret
+        mode: "0600"
+      when: vm_os_fam == "RedHat"
+
+    - name: CP xl2tpd.conf template
+      template:
+        src: xl2tpd.conf.j2
+        dest: /etc/xl2tpd/xl2tpd.conf
+        mode: "0644"
+
+    - name: CP options.xl2tpd template
+      template:
+        src: options.xl2tpd.j2
+        dest: /etc/ppp/options.xl2tpd
+        mode: "0644"
+
+    - name: CP chap-secrets template
+      template:
+        src: chap-secrets.j2
+        dest: /etc/ppp/chap-secrets
+        mode: "0600"
+      when: users_status is true
+
+    - name: CP ipsec.sh Script for redirects
+      copy:
+        src: ipsec.sh
+        dest: /usr/local/bin
+        mode: "+x"
+
+    - name: CP unit config for ipsec.sh
+      copy:
+        src: startup-ipsec.service
+        dest: /etc/systemd/system
+      notify:
+        - Enable and Start Network-rules 'startup-ipsec.service'
+  notify:
+    - Restart Services
