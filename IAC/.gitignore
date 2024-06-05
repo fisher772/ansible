@@ -1,3 +1,3 @@
 # roles/**/*cred*
 # plyabooks/**/*cred*
-roles/vpn_l2tp/*cred*
+playbooks/vpn_l2tp/*cred*
