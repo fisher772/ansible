@@ -3,6 +3,11 @@
 MYHOSTS:                "test"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+docker_mirrors_status:  false
+
+>>>>>>> devops
 =======
 docker_mirrors_status:  false
 
