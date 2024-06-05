@@ -1,2 +1,18 @@
 ---
 # vars file for vpn_l2tp
+packages:
+  - epel-release
+  - mc
+  - lsof
+  - htop
+  - vim
+  - python3
+  - curl
+  - wget
+  - iptables
+  - telnet
+  - mlocate
+
+services:
+  - strongswan
+  - xl2tpd

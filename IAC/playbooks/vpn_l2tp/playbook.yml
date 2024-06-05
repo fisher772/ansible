@@ -1,9 +1,9 @@
 ---
-- name: Deploy local DNS server
+- name: Deploy VPN-l2tp server
   become: true
   hosts: "{{ MYHOSTS }}"
   vars_files:
     - credentials.yml
 
   roles:
-    - { role: local_dns, when: ansible_system == 'Linux' }
+    - { role: vpn_l2tp, when: ansible_system == 'Linux' }

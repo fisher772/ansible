@@ -1,2 +1,30 @@
 ---
 # handlers file for vpn_l2tp
+- block:
+    - name: Started services if installed
+      service:
+        name: strongswan
+        state: started
+        enabled: true
+      when: services_results.changes.installed is defined
+
+    - name: Restarted services if updated
+      service:
+        name: strongswan
+        state: restarted
+      when: services_results.changes.updated is defined
+
+    - name: Restart Services
+      service:
+        name: 
+          - strongswan
+          - xl2tpd
+        state: restarted
+    
+    - name: Enable and Start Network-rules 'startup-ipsec.service'
+      service:
+        name: startup-ipsec.service
+        state: started
+        enabled: true
+  become: false
+  become_user: "{{ vpn_user }}"
