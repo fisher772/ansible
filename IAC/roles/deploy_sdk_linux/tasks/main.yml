@@ -32,20 +32,19 @@
 - block:
     - name: Execute Upgrade unix Packages 'Debian/Ubuntu'
       apt:
-        name: upgrade
+        upgrade: true
+        update_cache: true
         state: latest
 
     - name: Install utils/unix-packages for 'Debian/Ubuntu'
       apt:
         name: "{{ packages }}"
         state: latest
-        update_cache: true
 
     - name: Add Docker Repository
       apt_repository:
         repo: "deb [arch=amd64] {{ docker_repo_url }} stable main"
         state: present
-        update_cache: true
 
     - name: Add Docker GPG key
       apt_key:
@@ -56,7 +55,6 @@
       apt:
         name: "{{ services }}"
         state: latest
-        update_cache: true
       register: services_results
   when: vm_os_fam == "Debian"
      or vm_os_fam == "Ubuntu"
@@ -71,9 +69,8 @@
 
     - name: Install utils/unix-packages for 'RedHat'
       yum:
-        name: "{{ packages + ['yum-utils'] }}"
+        name: "{{ packages + ['yum-utils'] + ['epel-release'] }}"
         state: latest
-        update_cache: true
 
     - name: Add a Docker Repository
       yum_repository:
@@ -88,7 +85,6 @@
       yum:
         name: "{{ services }}"
         state: latest
-        update_cache: true
       register: services_results
   when: vm_os_fam == "RedHat"
 
@@ -107,6 +103,7 @@
     ssh_key_type: ed25519
     ssh_key_file: .ssh/id_ed25519
     groups: docker
+  no_log: true
   notify:
     - Add a Docker mirrors
     - Start and Enable services
@@ -176,5 +173,6 @@
           title: "{{ title_key }}"
           key: "{{ ssh_key }}"
         status_code: 201
+      no_log: true
       when: not key_exists
   when: git_status is true

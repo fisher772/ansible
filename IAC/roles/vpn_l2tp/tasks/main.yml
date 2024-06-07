@@ -3,78 +3,87 @@
 - name: Test ping
   ping:
 
-- name: Create Users Groups
-  group:
-    name:
-      - "{{ ansible_group }}"
-      - "{{ vpn_group }}"
-    state: present
+##### Block for Create Users/Groups and Add grants #####
+- block:
+    - name: Combine groups
+      set_fact:
+        combined_groups: "{{ combined_groups | default([]) + (iac_group.split() if iac_group!= '' else []) + (vpn_group.split() if vpn_group!= '' else []) }}"
 
-- name: Create User and SSH key for Ansible
-  user:
-    name: "{{ ansible_user }}"
-    password: "{{ ansible_pw }}"
-    groups: "{{ ansible_group }}"
-    append: true
-    state: present
-    createhome: true
-    generate_ssh_key: true
-    ssh_key_type: "ed25519"
-    ssh_key_file: .ssh/id_ed25519
+    - name: Create Users Groups
+      group:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ combined_groups }}"
 
-- name: Allow the Ansible user to run any commands as grant_secret user
-  community.general.sudoers:
-    name: "{{ ansible_user }}"
-    state: present
-    user: "{{ ansible_user }}"
-    runas: "{{ grant_secret }}"
-    commands: ALL
+    - name: Create User and SSH key for Ansible
+      user:
+        name: "{{ iac_user }}"
+        password: "{{ iac_pw }}"
+        groups: "{{ iac_group }}"
+        append: true
+        state: present
+        createhome: true
+        generate_ssh_key: true
+        ssh_key_type: "ed25519"
+        ssh_key_file: ".ssh/id_ed25519"
 
-- name: Create User and SSH key for VPN
-  user:
-    name: "{{ vpn_user }}"
-    password: "{{ vpn_pw }}"
-    groups: "{{ vpn_group }}"
-    createhome: true
-    generate_ssh_key: true
-    ssh_key_type: "ed25519"
-    ssh_key_file: .ssh/id_ed25519
+    - name: Allow the Ansible user to run any commands as grant_secret user
+      community.general.sudoers:
+        name: "{{ iac_user }}"
+        state: present
+        user: "{{ iac_user }}"
+        runas: "{{ grant_secret }}"
+        commands: ALL
 
-- name: Allow the VPN user to run any commands as grant_secret user
-  community.general.sudoers:
-    name: "{{ vpn_user }}"
-    state: present
-    user: "{{ vpn_pw }}"
-    runas: "{{ grant_secret }}"
-    commands:
-      - /bin/systemctl start *
-      - /bin/systemctl stop *
-      - /bin/systemctl restart *
-      - /bin/systemctl reload *
-      - /bin/systemctl status *
-      - /bin/systemctl daemon-reload
+    - name: Create User and SSH key for VPN
+      user:
+        name: "{{ vpn_user }}"
+        password: "{{ vpn_pw }}"
+        groups: "{{ vpn_group }}"
+        createhome: true
+        generate_ssh_key: true
+        ssh_key_type: "ed25519"
+        ssh_key_file: ".ssh/id_ed25519"
+
+    - name: Allow the VPN user to run any commands as grant_secret user
+      community.general.sudoers:
+        name: "{{ vpn_user }}"
+        state: present
+        user: "{{ vpn_user }}"
+        runas: "{{ grant_secret }}"
+        commands:
+          - /bin/systemctl start *
+          - /bin/systemctl stop *
+          - /bin/systemctl restart *
+          - /bin/systemctl reload *
+          - /bin/systemctl status *
+          - /bin/systemctl daemon-reload
+  when: users_status is true
+  no_log: true
 
 #####Block for Debian/Ubuntu#####
 - block:
     - name: Execute Upgrade unix Packages 'Debian/Ubuntu'
       apt:
-        name: upgrade
+        upgrade: true
+        update_cache: true
         state: latest
 
     - name: Install utils/unix-packages for 'Debian/Ubuntu'
       apt:
         name: "{{ packages }}"
         state: latest
+      notify:
+        - Install packages for Speedtest
 
-    - name: Install DNS services for 'Debian/Ubuntu'
+    - name: Install VPN services for 'Debian/Ubuntu'
       apt:
         name: "{{ services }}"
         state: latest
       register: services_results
       notify:
-        - Started services if installed
-        - Started services if updated
-  update_cache: true
+        - Started services if installed for 'Debian/Ubuntu'
+        - Restarted services if updated for 'Debian/Ubuntu'
   when: vm_os_fam == "Debian"
      or vm_os_fam == "Ubuntu"
 
@@ -87,19 +96,23 @@
 
     - name: Install utils/unix-packages for 'RedHat'
       yum:
-        name: "{{ packages + ['yum-utils'] }}"
+        name: "{{ packages + ['yum-utils'] + ['epel-release'] }}"
         state: latest
+      notify:
+        - Install packages for Speedtest
 
-    - name: Install DNS services for 'RedHat'
+    - name: Install VPN services for 'RedHat'
       yum:
         name: "{{ services }}"
         state: latest
       register: services_results
       notify:
-        - Started services if installed
-        - Restarted services if updated
-  update_cache: true
+        - Started services if installed for 'RedHat'
+        - Restarted services if updated for 'RedHat'
   when: vm_os_fam == "RedHat"
+
+- name: Execute cmd updatedb
+  shell: updatedb
 
 #####Block for CP config settings and Start/Enable/Reboot services#####
 - block:
@@ -120,16 +133,16 @@
 
     - name: CP ipsec.secret template for 'Debian/Ubuntu'
       template:
-        src: ipsec.secret.j2
-        dest: /etc/ipsec.secret
+        src: ipsec.secrets.j2
+        dest: /etc/ipsec.secrets
         mode: "0600"
       when: vm_os_fam == "Debian"
          or vm_os_fam == "Ubuntu"
 
     - name: CP ipsec.secret template for 'RedHat'
       template:
-        src: ipsec.secret.j2
-        dest: /etc/strongswan/ipsec.secret
+        src: ipsec.secrets.j2
+        dest: /etc/strongswan/ipsec.secrets
         mode: "0600"
       when: vm_os_fam == "RedHat"
 
@@ -164,5 +177,7 @@
         dest: /etc/systemd/system
       notify:
         - Enable and Start Network-rules 'startup-ipsec.service'
+      when: sh_status is true
   notify:
-    - Restart Services
+    - Restart Services for 'Debian/Ubuntu'
+    - Restart Services for 'RedHat'

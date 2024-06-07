@@ -7,7 +7,6 @@ git_cfg:
   - { name: 'alias.ci', value: 'commit' }
 
 packages:
-  - epel-release
   - mc
   - lsof
   - htop

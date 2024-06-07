@@ -1,7 +1,8 @@
 ---
 # vars file for vpn_l2tp
 packages:
-  - epel-release
+  - coreutils
+  - util-linux
   - mc
   - lsof
   - htop
@@ -10,8 +11,16 @@ packages:
   - curl
   - wget
   - iptables
+  - dnsutils
+  - iproute2
+  - net-tools
+  - gawk
+  - nmap
   - telnet
   - mlocate
+  - snapd
+  - openssl
+  - uuid-runtime
 
 services:
   - strongswan

@@ -3,15 +3,15 @@ port = 1701
 auth file = /etc/ppp/chap-secrets
 access control = no
 ipsec saref = yes
-force userspace yes
+force userspace = yes
 
-[ins default]
-exclusive = no
-ip range {{ vpn_ip_range }}
-hidden bit = no
+[lns default]
+ip range = {{ vpn_ip_range }}
 local ip = {{ vpn_local_ip }}
-length bit = yes
+exclusive = no
 require authentication = yes
-name 12tp-vpn
-pppoptfile = /etc/ppp/options.x12tpd
+name = l2tpd-vpn
+pppoptfile = /etc/ppp/options.xl2tpd
 flow bit = yes
+length bit = yes
+hidden bit = no
