@@ -7,14 +7,14 @@
 - block:
     - name: Execute Upgrade unix Packages 'Debian/Ubuntu'
       apt:
-        name: upgrade
+        upgrade: true
+        update_cache: true
         state: latest
 
     - name: Install utils/unix-packages for 'Debian/Ubuntu'
       apt:
         name: "{{ packages + ['bind9utils'] }}"
         state: latest
-        update_cache: true
 
     - name: Open port for DNS traffic on 'Debian/Ubuntu'
       ufw:
@@ -25,11 +25,10 @@
       apt:
         name: "{{ services_other }}"
         state: latest
-        update_cache: true
       register: services_results
       notify:
         - Started services if installed
-        - Started services if updated
+        - Restarted services if updated
   when: vm_os_fam == "Debian"
      or vm_os_fam == "Ubuntu"
 
@@ -43,9 +42,8 @@
 
     - name: Install utils/unix-packages for 'RedHat'
       yum:
-        name: "{{ packages + ['yum-utils'] + ['bind-utils'] }}"
+        name: "{{ packages + ['yum-utils'] + ['bind-utils'] + ['epel-release'] }}"
         state: latest
-        update_cache: true
 
     - name: Open port for DNS traffic on 'RedHat'
       ansible.posix.firewalld:
@@ -57,12 +55,14 @@
       yum:
         name: "{{ services_redhat }}"
         state: latest
-        update_cache: true
       register: services_results
       notify:
         - Started services if installed
         - Restarted services if updated
   when: vm_os_fam == "RedHat"
+
+- name: Execute cmd updatedb
+  shell: updatedb
 
 #####Block for MV configs and Reboot DNS service#####
 - block:

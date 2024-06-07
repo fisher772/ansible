@@ -1,7 +1,6 @@
 ---
 # vars file for local_dns
 packages:
-  - epel-release
   - mc
   - lsof
   - htop
