@@ -33,7 +33,5 @@ update_iptables() {
         conf_bk "$IPT_FILE2"
         /bin/cp -f "$IPT_FILE" "$IPT_FILE2"
     fi
-
-    systemctl restart fail2ban
 }
 

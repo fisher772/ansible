@@ -82,8 +82,8 @@
         state: latest
       register: services_results
       notify:
-        - Started services if installed for 'Debian/Ubuntu'
-        - Restarted services if updated for 'Debian/Ubuntu'
+        - Started Services if installed for 'Debian/Ubuntu'
+        - Restarted Services if updated for 'Debian/Ubuntu'
   when: vm_os_fam == "Debian"
      or vm_os_fam == "Ubuntu"
 
@@ -107,8 +107,8 @@
         state: latest
       register: services_results
       notify:
-        - Started services if installed for 'RedHat'
-        - Restarted services if updated for 'RedHat'
+        - Started Services if installed for 'RedHat'
+        - Restarted Services if updated for 'RedHat'
   when: vm_os_fam == "RedHat"
 
 - name: Execute cmd updatedb
@@ -130,6 +130,21 @@
         dest: /etc/strongswan
         mode: "0644"
       when: vm_os_fam == "RedHat"
+
+    - name: CP ikev2.conf template for 'Debian/Ubuntu'
+      template:
+        src: ikev2.conf.j2
+        dest: /etc/ikev2.conf
+        mode: "0644"
+      when: vm_os_fam == "Debian"
+         or vm_os_fam == "Ubuntu"
+
+    - name: CP ikev2.conf template for 'RedHat'
+      template:
+        src: ikev2.conf.j2
+        dest: /etc/strongswan/ikev2.conf
+        mode: "0644"
+      when: vm_os_fam == "RedHat"    
 
     - name: CP ipsec.secret template for 'Debian/Ubuntu'
       template:
@@ -165,19 +180,22 @@
         mode: "0600"
       when: users_status is true
 
-    - name: CP ipsec.sh Script for redirects
+    - name: CP .sh Scripts for Generate Keys/Rules/Forwarding
       copy:
-        src: ipsec.sh
-        dest: /usr/local/bin
+        src: "*.sh"
+        dest: /tmp/vpn_sh
         mode: "+x"
 
-    - name: CP unit config for ipsec.sh
+    - name: CP.env file for .sh
       copy:
-        src: startup-ipsec.service
-        dest: /etc/systemd/system
-      notify:
-        - Enable and Start Network-rules 'startup-ipsec.service'
+        src: ".env"
+        dest: /tmp/vpn_sh
+        mode: "0644"
+
+    - name: Running a Handler
+      script: /tmp/vpn_sh/handler.sh
       when: sh_status is true
   notify:
-    - Restart Services for 'Debian/Ubuntu'
-    - Restart Services for 'RedHat'
+    - Apply changes and reload for sysctl
+    - Restarted Services for 'Debian/Ubuntu'
+    - Restarted Services for 'RedHat'

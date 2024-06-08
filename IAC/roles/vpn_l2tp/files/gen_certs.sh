@@ -16,7 +16,8 @@ create_keys() {
 
   pki --pub --in $PATH_KEYS/private/server-key.pem --type rsa | \
   pki --issue --lifetime 1825 --cacert $PATH_KEYS/cacerts/ca-cert.pem \
-  --cakey $PATH_KEYS/private/ca-key.pem --dn "CN=server_domain_or_IP" \
-  --san server_domain_or_IP --flag serverAuth --flag ikeIntermediate \
+  --cakey $PATH_KEYS/private/ca-key.pem --dn "CN=$VPN_IP_SERVER" \
+  --san $VPN_IP_SERVER --san @$VPN_IP_SERVER --flag serverAuth --flag ikeIntermediate \
   --outform pem > $PATH_KEYS/certs/server-cert.pem
 }
+

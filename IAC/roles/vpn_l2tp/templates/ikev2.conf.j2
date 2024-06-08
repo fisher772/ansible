@@ -10,8 +10,12 @@ conn ikev2-vpn
     left=%any
     leftid={{ vpn_ip_server }}
     leftcert=server-cert.pem
+    leftsubnet=%any
     leftsendcert=always
     right=%any
+    rightid=%any
+    rightsourceip={{ vpn_route_range }}
+    rightdns={{ dns_1 }},{{ dns_2 }}
     rightauth=eap-mschapv2
     rightsendcert=never
     eap_identity=%identity
