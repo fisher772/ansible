@@ -1,0 +1,19 @@
+conn ikev2-vpn
+    also=rw-base
+    compress=no
+    type=tunnel
+    keyexchange=ikev2
+    forceencaps=yes
+    rekey=no
+    leftsubnet=%dynamic[/1701]
+    rightsubnet=%dynamic
+    left=%any
+    leftid={{ vpn_ip_server }}
+    leftcert=server-cert.pem
+    leftsendcert=always
+    right=%any
+    rightauth=eap-mschapv2
+    rightsendcert=never
+    eap_identity=%identity
+    ike=chacha20poly1305-sha512-curve25519-prfsha512,aes256gcm16-sha384-prfsha384-ecp384,aes256-sha1-modp1024-modp3072,aes128-sha1-modp1024-modp3072,3des-sha1-modp1024-modp3072!
+    esp=chacha20poly1305-sha512,aes256gcm16-ecp384,aes256-sha256,aes256-sha1,3des-sha1!
