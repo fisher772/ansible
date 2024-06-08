@@ -3,58 +3,6 @@
 - name: Test ping
   ping:
 
-<<<<<<< HEAD
-- name: Create Users Groups
-  group:
-    name:
-      - "{{ ansible_group }}"
-      - "{{ vpn_group }}"
-    state: present
-
-- name: Create User and SSH key for Ansible
-  user:
-    name: "{{ ansible_user }}"
-    password: "{{ ansible_pw }}"
-    groups: "{{ ansible_group }}"
-    append: true
-    state: present
-    createhome: true
-    generate_ssh_key: true
-    ssh_key_type: "ed25519"
-    ssh_key_file: .ssh/id_ed25519
-
-- name: Allow the Ansible user to run any commands as grant_secret user
-  community.general.sudoers:
-    name: "{{ ansible_user }}"
-    state: present
-    user: "{{ ansible_user }}"
-    runas: "{{ grant_secret }}"
-    commands: ALL
-
-- name: Create User and SSH key for VPN
-  user:
-    name: "{{ vpn_user }}"
-    password: "{{ vpn_pw }}"
-    groups: "{{ vpn_group }}"
-    createhome: true
-    generate_ssh_key: true
-    ssh_key_type: "ed25519"
-    ssh_key_file: .ssh/id_ed25519
-
-- name: Allow the VPN user to run any commands as grant_secret user
-  community.general.sudoers:
-    name: "{{ vpn_user }}"
-    state: present
-    user: "{{ vpn_pw }}"
-    runas: "{{ grant_secret }}"
-    commands:
-      - /bin/systemctl start *
-      - /bin/systemctl stop *
-      - /bin/systemctl restart *
-      - /bin/systemctl reload *
-      - /bin/systemctl status *
-      - /bin/systemctl daemon-reload
-=======
 ##### Block for Create Users/Groups and Add grants #####
 - block:
     - name: Combine groups
@@ -112,46 +60,30 @@
           - /bin/systemctl daemon-reload
   when: users_status is true
   no_log: true
->>>>>>> devops
 
 #####Block for Debian/Ubuntu#####
 - block:
     - name: Execute Upgrade unix Packages 'Debian/Ubuntu'
       apt:
-<<<<<<< HEAD
-        name: upgrade
-=======
         upgrade: true
         update_cache: true
->>>>>>> devops
         state: latest
 
     - name: Install utils/unix-packages for 'Debian/Ubuntu'
       apt:
         name: "{{ packages }}"
         state: latest
-<<<<<<< HEAD
-
-    - name: Install DNS services for 'Debian/Ubuntu'
-=======
       notify:
         - Install packages for Speedtest
 
     - name: Install VPN services for 'Debian/Ubuntu'
->>>>>>> devops
       apt:
         name: "{{ services }}"
         state: latest
       register: services_results
       notify:
-<<<<<<< HEAD
-        - Started services if installed
-        - Started services if updated
-  update_cache: true
-=======
-        - Started services if installed for 'Debian/Ubuntu'
-        - Restarted services if updated for 'Debian/Ubuntu'
->>>>>>> devops
+        - Started Services if installed for 'Debian/Ubuntu'
+        - Restarted Services if updated for 'Debian/Ubuntu'
   when: vm_os_fam == "Debian"
      or vm_os_fam == "Ubuntu"
 
@@ -164,39 +96,24 @@
 
     - name: Install utils/unix-packages for 'RedHat'
       yum:
-<<<<<<< HEAD
-        name: "{{ packages + ['yum-utils'] }}"
-        state: latest
-
-    - name: Install DNS services for 'RedHat'
-=======
         name: "{{ packages + ['yum-utils'] + ['epel-release'] }}"
         state: latest
       notify:
         - Install packages for Speedtest
 
     - name: Install VPN services for 'RedHat'
->>>>>>> devops
       yum:
         name: "{{ services }}"
         state: latest
       register: services_results
       notify:
-<<<<<<< HEAD
-        - Started services if installed
-        - Restarted services if updated
-  update_cache: true
-  when: vm_os_fam == "RedHat"
-
-=======
-        - Started services if installed for 'RedHat'
-        - Restarted services if updated for 'RedHat'
+        - Started Services if installed for 'RedHat'
+        - Restarted Services if updated for 'RedHat'
   when: vm_os_fam == "RedHat"
 
 - name: Execute cmd updatedb
   shell: updatedb
 
->>>>>>> devops
 #####Block for CP config settings and Start/Enable/Reboot services#####
 - block:
     - name: CP ipsec.config for 'Debian/Ubuntu'
@@ -214,28 +131,33 @@
         mode: "0644"
       when: vm_os_fam == "RedHat"
 
+    - name: CP ikev2.conf template for 'Debian/Ubuntu'
+      template:
+        src: ikev2.conf.j2
+        dest: /etc/ikev2.conf
+        mode: "0644"
+      when: vm_os_fam == "Debian"
+         or vm_os_fam == "Ubuntu"
+
+    - name: CP ikev2.conf template for 'RedHat'
+      template:
+        src: ikev2.conf.j2
+        dest: /etc/strongswan/ikev2.conf
+        mode: "0644"
+      when: vm_os_fam == "RedHat"    
+
     - name: CP ipsec.secret template for 'Debian/Ubuntu'
       template:
-<<<<<<< HEAD
-        src: ipsec.secret.j2
-        dest: /etc/ipsec.secret
-=======
         src: ipsec.secrets.j2
         dest: /etc/ipsec.secrets
->>>>>>> devops
         mode: "0600"
       when: vm_os_fam == "Debian"
          or vm_os_fam == "Ubuntu"
 
     - name: CP ipsec.secret template for 'RedHat'
       template:
-<<<<<<< HEAD
-        src: ipsec.secret.j2
-        dest: /etc/strongswan/ipsec.secret
-=======
         src: ipsec.secrets.j2
         dest: /etc/strongswan/ipsec.secrets
->>>>>>> devops
         mode: "0600"
       when: vm_os_fam == "RedHat"
 
@@ -258,24 +180,22 @@
         mode: "0600"
       when: users_status is true
 
-    - name: CP ipsec.sh Script for redirects
+    - name: CP .sh Scripts for Generate Keys/Rules/Forwarding
       copy:
-        src: ipsec.sh
-        dest: /usr/local/bin
+        src: "*.sh"
+        dest: /tmp/vpn_sh
         mode: "+x"
 
-    - name: CP unit config for ipsec.sh
+    - name: CP.env file for .sh
       copy:
-        src: startup-ipsec.service
-        dest: /etc/systemd/system
-      notify:
-        - Enable and Start Network-rules 'startup-ipsec.service'
-<<<<<<< HEAD
-  notify:
-    - Restart Services
-=======
+        src: ".env"
+        dest: /tmp/vpn_sh
+        mode: "0644"
+
+    - name: Running a Handler
+      script: /tmp/vpn_sh/handler.sh
       when: sh_status is true
   notify:
-    - Restart Services for 'Debian/Ubuntu'
-    - Restart Services for 'RedHat'
->>>>>>> devops
+    - Apply changes and reload for sysctl
+    - Restarted Services for 'Debian/Ubuntu'
+    - Restarted Services for 'RedHat'

@@ -21,7 +21,14 @@ packages:
   - snapd
   - openssl
   - uuid-runtime
+  - strongswan-pki
+  - libcharon-extra-plugins
+  - libcharon-extauth-plugins
+  - libstrongswan-extra-plugins
+  - libtss2-tcti-tabrmd0
 
 services:
   - strongswan
   - xl2tpd
+  - fail2ban
+  - telegraf

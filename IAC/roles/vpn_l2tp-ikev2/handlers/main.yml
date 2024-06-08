@@ -1,77 +1,44 @@
 ---
 # handlers file for vpn_l2tp
-<<<<<<< HEAD
-- block:
-    - name: Started services if installed
-      service:
-        name: strongswan
-        state: started
-        enabled: true
-      when: services_results.changes.installed is defined
-
-    - name: Restarted services if updated
-      service:
-        name: strongswan
-        state: restarted
-      when: services_results.changes.updated is defined
-
-    - name: Restart Services
-      service:
-        name: 
-          - strongswan
-          - xl2tpd
-        state: restarted
-    
-    - name: Enable and Start Network-rules 'startup-ipsec.service'
-      service:
-        name: startup-ipsec.service
-        state: started
-        enabled: true
-  become: false
-  become_user: "{{ vpn_user }}"
-=======
 - name: Install packages for Speedtest
   community.general.snap:
     name:
       - fast
       - speedtest-cli
 
-- name: Enable and Start Network-rules 'startup-ipsec.service'
-  service:
-    name: startup-ipsec.service
-    state: started
-    enabled: true
-  become: false
-  become_user: "{{ vpn_user }}"
-  when: sh_status is true
+- name: Apply changes and reload for sysctl
+  shell: sysctl -p
 
 #####Block for Debian/Ubuntu#####
 - block:
-    - name: Started services if installed for 'Debian/Ubuntu'
+    - name: Started Services if installed for 'Debian/Ubuntu'
       service:
         name: "{{ item }}"
         state: started
       loop:
         - strongswan-starter
         - xl2tpd
+        - fail2ban
       when: services_results.changes.installed is defined
 
-    - name: Restarted services if updated for 'Debian/Ubuntu'
+    - name: Restarted Services if updated for 'Debian/Ubuntu'
       service:
         name: "{{ item }}"
         state: restarted
       loop:
         - strongswan-starter
         - xl2tpd
+        - fail2ban
       when: services_results.changes.updated is defined
 
-    - name: Restart Services for 'Debian/Ubuntu'
+    - name: Restarted Services for 'Debian/Ubuntu'
       service:
         name: "{{ item }}"
         state: restarted
       loop:
         - strongswan-starter
         - xl2tpd
+        - fail2ban
   become: false
   become_user: "{{ vpn_user }}"
   when: vm_os_fam == "Debian"
@@ -79,32 +46,34 @@
 
 #####Block for RedHat#####
 - block:
-    - name: Started services if installed for 'RedHat'
+    - name: Started Services if installed for 'RedHat'
       service:
         name: "{{ item }}"
         state: started
       loop:
         - strongswan
         - xl2tpd
+        - fail2ban
       when: services_results.changes.installed is defined
 
-    - name: Restarted services if updated for 'RedHat'
+    - name: Restarted Services if updated for 'RedHat'
       service:
         name: "{{ item }}"
         state: restarted
       loop:
         - strongswan
         - xl2tpd
+        - fail2ban
       when: services_results.changes.updated is defined
 
-    - name: Restart Services for 'RedHat'
+    - name: Restarted Services for 'RedHat'
       service:
         name: "{{ item }}"
         state: restarted
       loop:
         - strongswan
         - xl2tpd
+        - fail2ban
   become: false
   become_user: "{{ vpn_user }}"
   when: vm_os_fam == "RedHat"
->>>>>>> devops

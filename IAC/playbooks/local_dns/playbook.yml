@@ -1,9 +1,0 @@
----
-- name: Deploy local DNS server
-  become: true
-  hosts: "{{ MYHOSTS }}"
-  vars_files:
-    - credentials.yml
-
-  roles:
-    - { role: local_dns, when: ansible_system == 'Linux' }

@@ -32,31 +32,19 @@
 - block:
     - name: Execute Upgrade unix Packages 'Debian/Ubuntu'
       apt:
-<<<<<<< HEAD
-        name: upgrade
-=======
         upgrade: true
         update_cache: true
->>>>>>> devops
         state: latest
 
     - name: Install utils/unix-packages for 'Debian/Ubuntu'
       apt:
         name: "{{ packages }}"
         state: latest
-<<<<<<< HEAD
-        update_cache: true
-=======
->>>>>>> devops
 
     - name: Add Docker Repository
       apt_repository:
         repo: "deb [arch=amd64] {{ docker_repo_url }} stable main"
         state: present
-<<<<<<< HEAD
-        update_cache: true
-=======
->>>>>>> devops
 
     - name: Add Docker GPG key
       apt_key:
@@ -67,10 +55,6 @@
       apt:
         name: "{{ services }}"
         state: latest
-<<<<<<< HEAD
-        update_cache: true
-=======
->>>>>>> devops
       register: services_results
   when: vm_os_fam == "Debian"
      or vm_os_fam == "Ubuntu"
@@ -85,14 +69,8 @@
 
     - name: Install utils/unix-packages for 'RedHat'
       yum:
-<<<<<<< HEAD
-        name: "{{ packages + ['yum-utils'] }}"
-        state: latest
-        update_cache: true
-=======
         name: "{{ packages + ['yum-utils'] + ['epel-release'] }}"
         state: latest
->>>>>>> devops
 
     - name: Add a Docker Repository
       yum_repository:
@@ -107,10 +85,6 @@
       yum:
         name: "{{ services }}"
         state: latest
-<<<<<<< HEAD
-        update_cache: true
-=======
->>>>>>> devops
       register: services_results
   when: vm_os_fam == "RedHat"
 
