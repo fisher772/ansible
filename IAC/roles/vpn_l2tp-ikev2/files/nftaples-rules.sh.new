@@ -1,0 +1,95 @@
+#!/bin/bash
+
+. /tmp/vpn_sh/vars
+
+conf_bk() { /bin/cp -f "$1" "$1.old-$SYS_DT" 2>/dev/null; }
+
+check_os() {
+  if command -v lsb_release &> /dev/null; then
+    os_type=$(lsb_release -si 2>/dev/null)
+  else
+    if [ -f /etc/redhat-release ]; then
+      os_type=RedHat
+    fi
+  fi
+}
+
+check_nftables() {
+  if [! -x /usr/sbin/nft ] ||! nft list ruleset >/dev/null 2>&1; then
+    exiterr "NFTables check failed. Reboot and re-run this script."
+  fi
+}
+
+update_nftables() {
+    systemctl stop fail2ban >/dev/null 2>&1
+
+    # Очистка таблиц
+    nft flush ruleset
+
+    # Добавление правил
+    nft add rule inet filter input iifname "eth0" ip protocol udp dport 1701 drop
+    nft add rule inet filter input ct state invalid drop
+    nft add rule inet filter input ct state established,related accept
+    nft add rule inet filter input iifname "eth0" oifname "ppp+" ct state established,related accept
+    nft add rule inet filter forward ct state invalid drop
+    nft add rule inet filter forward iifname "eth0" oifname "ppp+" ct state established,related accept
+    nft add rule inet filter forward iifname "ppp+" oifname "ppp+" accept
+    nft add rule inet filter forward reject
+    nft add rule inet filter output ip saddr "$VPN_ROUTE_RANGE" masquerade
+
+    # Сохранение правил
+    nft list ruleset > "$IPT_FILE"
+    if [ -f "$IPT_FILE2" ]; then
+        conf_bk "$IPT_FILE2"
+        /bin/cp -f "$IPT_FILE" "$IPT_FILE2"
+    fi
+}
+
+enable_on_boot() {
+  ipt_load=1
+  if [ -f "$IPT_FILE2" ] && { [ -f "$IPT_PST" ] || [ -f "$IPT_PST2" ]; }; then
+    ipt_load=0
+  fi
+
+  if [ "$ipt_load" = "1" ]; then
+    mkdir -p /etc/network/if-pre-up.d
+    cat > /etc/network/if-pre-up.d/nftablesload <<'EOF'
+    #!/bin/sh
+    nft -f /etc/nftables.conf
+    exit 0
+    EOF
+    chmod +x /etc/network/if-pre-up.d/nftablesload
+
+    cat > /etc/systemd/system/load-nftables.service <<'EOF'
+    [Unit]
+    Description = Load /etc/nftables.conf
+    DefaultDependencies=no
+
+    Before=network-pre.target
+    Wants=network-pre.target
+
+    Wants=systemd-modules-load.service local-fs.target
+    After=systemd-modules-load.service local-fs.target
+
+    [Service]
+    Type=oneshot
+    ExecStart=/etc/network/if-pre-up.d/nftablesload
+
+    [Install]
+    WantedBy=multi-user.target
+    EOF
+    systemctl enable load-nftables 2>/dev/null
+  fi
+}
+
+setup() {
+  check_os
+  conf_bk
+  check_nftables
+  update_nftables
+  enable_on_boot
+}
+
+setup "$@"
+
+exit 0
