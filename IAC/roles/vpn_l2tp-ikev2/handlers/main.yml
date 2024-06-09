@@ -6,8 +6,13 @@
       - fast
       - speedtest-cli
 
-- name: Apply changes and reload for sysctl
+- name: Apply changes and Reload for sysctl
   shell: sysctl -p
+
+- name: RM .sh Scritps
+  file:
+    path: /tmp/vpn_sh
+    state: absent
 
 #####Block for Debian/Ubuntu#####
 - block:

@@ -1,19 +1,14 @@
 #!/bin/bash
 
-export "$(cat.env)"
+. /tmp/vpn_sh/vars
 
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 conf_bk() { /bin/cp -f "$1" "$1.old-$SYS_DT" 2>/dev/null; }
 
-echo 1 > /proc/sys/net/ipv4/ip_forward
-
-/etc/sysctl.conf
-
 update_sysctl() {
 conf_bk "/etc/sysctl.conf"
 conf_bk "/proc/sys/net/ipv4/ip_forward"
-echo 1 > /proc/sys/net/ipv4/ip_forward
 
 cat >> /etc/sysctl.conf <<EOF
 
@@ -36,3 +31,11 @@ net.ipv4.tcp_rmem = 4096 87380 16777216
 net.ipv4.tcp_wmem = 4096 87380 16777216
 EOF
 }
+
+setup() {
+  update_sysctl
+}
+
+setup "$@"
+
+exit 0

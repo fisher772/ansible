@@ -1,8 +1,18 @@
 #!/bin/bash
 
-export "$(cat.env)"
+. /tmp/vpn_sh/vars
 
 conf_bk() { /bin/cp -f "$1" "$1.old-$SYS_DT" 2>/dev/null; }
+
+check_os() {
+  if command -v lsb_release &> /dev/null; then
+    os_type=$(lsb_release -si 2>/dev/null)
+  else
+    if [ -f /etc/redhat-release ]; then
+      os_type=RedHat
+    fi
+  fi
+}
 
 check_iptables() {
   if [ -x /sbin/iptables ] && ! iptables -nL INPUT >/dev/null 2>&1; then
@@ -10,11 +20,10 @@ check_iptables() {
   fi
 }
 
-
 update_iptables() {
     systemctl stop fail2ban >/dev/null 2>&1
 
-    iptables -FX
+    iptables -F && iptables -X
     iptables -A INPUT -p udp -m udp --dport 1701 -m policy --dir in --pol none -j DROP
     iptables -A INPUT -m conntrack --ctstate INVALID -j DROP
     iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
@@ -26,12 +35,90 @@ update_iptables() {
     iptables -A FORWARD -i ppp+ -o eth0 -j ACCEPT
     iptables -A FORWARD -i ppp+ -o ppp+ -j ACCEPT
     iptables -A FORWARD -j DROP
-    iptables -t nat -A POSTROUTING -s $VPN_ROUTE_RANGE -o eth0 -j MASQUERADE
+    iptables -t nat -A POSTROUTING -s "$VPN_ROUTE_RANGE" -o eth0 -j MASQUERADE
 
-    iptables-save >> "$IPT_FILE"
+    iptables-legacy-save >> "$IPT_FILE"
     if [ -f "$IPT_FILE2" ]; then
         conf_bk "$IPT_FILE2"
         /bin/cp -f "$IPT_FILE" "$IPT_FILE2"
     fi
 }
 
+enable_on_boot() {
+  ipt_load=1
+  if [ -f "$IPT_FILE2" ] && { [ -f "$IPT_PST" ] || [ -f "$IPT_PST2" ]; }; then
+    ipt_load=0
+  fi
+
+  if [ "$ipt_load" = "1" ]; then
+    mkdir -p /etc/network/if-pre-up.d
+cat > /etc/network/if-pre-up.d/iptablesload <<'EOF'
+#!/bin/sh
+iptables-legacy-restore < /etc/iptables.rules
+exit 0
+EOF
+    chmod +x /etc/network/if-pre-up.d/iptablesload
+
+cat > /etc/systemd/system/load-iptables-rules.service <<'EOF'
+[Unit]
+Description = Load /etc/iptables.rules
+DefaultDependencies=no
+
+Before=network-pre.target
+Wants=network-pre.target
+
+Wants=systemd-modules-load.service local-fs.target
+After=systemd-modules-load.service local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=/etc/network/if-pre-up.d/iptablesload
+
+[Install]
+WantedBy=multi-user.target
+EOF
+      systemctl enable load-iptables-rules 2>/dev/null
+  fi
+
+  if [ "$os_type" = RedHat ]; then
+    for svc in fail2ban strongswan-starter xl2tpd; do
+      update-rc.d "$svc" enable >/dev/null 2>&1
+      systemctl enable "$svc" 2>/dev/null
+    done
+  else
+    for svc in fail2ban strongswan xl2tpd; do
+      update-rc.d "$svc" enable >/dev/null 2>&1
+      systemctl enable "$svc" 2>/dev/null
+    done
+  fi
+
+  if ! grep -qs "fisher VPN script" /etc/rc.local; then
+    if [ -f /etc/rc.local ]; then
+      conf_bk "/etc/rc.local"
+      sed --follow-symlinks -i '/^exit 0/d' /etc/rc.local
+    else
+      echo '#!/bin/sh' > /etc/rc.local
+    fi
+cat >> /etc/rc.local <<'EOF'
+
+# Added by fisher VPN script
+(sleep 15
+systemctl restart ipsec
+systemctl restart xl2tpd
+echo 1 > /proc/sys/net/ipv4/ip_forward)&
+exit 0
+EOF
+  fi
+}
+
+setup() {
+  check_os
+  conf_bk
+  check_iptables
+  update_iptables
+  enable_on_boot
+}
+
+setup "$@"
+
+exit 0

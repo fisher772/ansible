@@ -15,6 +15,7 @@ packages:
   - iproute2
   - net-tools
   - gawk
+  - tree
   - nmap
   - telnet
   - mlocate

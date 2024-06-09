@@ -2,12 +2,13 @@
 # defaults file for vpn_l2tp
 MYHOSTS:                "p1-cloud.vpn_l2tp"
 
-sh_status:              false
+sh_status:              true
+users_status:           true
+
+src_folder:             "/home/ansible/ansible/projects/IAC/roles/vpn_l2tp-ikev2/files"
 
 vm_os_fam:              "{{ ansible_facts['os_family'] }}"
 vm_os_distrib:          "{{ ansible_facts['distribution'] }}"
 vm_os_mj_ver:           "{{ ansible_facts['distribution_major_version'] }}"
 vm_os_arch:             "{{ ansible_facts['architecture'] }}"
 vm_os_release:          "{{ ansible_facts['distribution_release'] }}"
-
-users_status:           true

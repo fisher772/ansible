@@ -1,7 +1,13 @@
 #!/bin/bash
 
-for script in *.sh; do
-    echo "RUN $script..."
-    chmod +x "$script"
-   ./"$script"
+for script in /tmp/vpn_sh/*.sh; do
+    case "$script" in
+        /tmp/vpn_sh/handler.sh)
+            ;;
+        *)
+            echo "RUN $script..."
+            chmod +x "$script"
+           bash "$script"
+            ;;
+    esac
 done

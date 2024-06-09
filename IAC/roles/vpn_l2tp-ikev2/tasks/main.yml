@@ -134,7 +134,7 @@
     - name: CP ikev2.conf template for 'Debian/Ubuntu'
       template:
         src: ikev2.conf.j2
-        dest: /etc/ikev2.conf
+        dest: /etc/ipsec.d/ikev2.conf
         mode: "0644"
       when: vm_os_fam == "Debian"
          or vm_os_fam == "Ubuntu"
@@ -142,9 +142,9 @@
     - name: CP ikev2.conf template for 'RedHat'
       template:
         src: ikev2.conf.j2
-        dest: /etc/strongswan/ikev2.conf
+        dest: /etc/strongswan/ipsec.d/ikev2.conf
         mode: "0644"
-      when: vm_os_fam == "RedHat"    
+      when: vm_os_fam == "RedHat"
 
     - name: CP ipsec.secret template for 'Debian/Ubuntu'
       template:
@@ -180,22 +180,29 @@
         mode: "0600"
       when: users_status is true
 
+    - name: MD tmp for .sh Scripts
+      file:
+        path: /tmp/vpn_sh
+        state: directory
+        mode: "0700"
+
     - name: CP .sh Scripts for Generate Keys/Rules/Forwarding
       copy:
-        src: "*.sh"
+        src: "{{ item }}"
         dest: /tmp/vpn_sh
         mode: "+x"
+      loop: "{{ query('fileglob', '{{ src_folder }}/*.sh', wantlist=True) }}"
 
     - name: CP.env file for .sh
       copy:
-        src: ".env"
+        src: vars
         dest: /tmp/vpn_sh
         mode: "0644"
 
     - name: Running a Handler
-      script: /tmp/vpn_sh/handler.sh
+      command: bash /tmp/vpn_sh/handler.sh
       when: sh_status is true
   notify:
-    - Apply changes and reload for sysctl
+    - Apply changes and Reload for sysctl
     - Restarted Services for 'Debian/Ubuntu'
     - Restarted Services for 'RedHat'
