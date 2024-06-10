@@ -117,17 +117,17 @@
 #####Block for CP config settings and Start/Enable/Reboot services#####
 - block:
     - name: CP ipsec.config for 'Debian/Ubuntu'
-      copy:
-        src: ipsec.conf
-        dest: /etc
+      template:
+        src: ipsec.conf.j2
+        dest: /etc/ipsec.conf
         mode: "0644"
       when: vm_os_fam == "Debian"
          or vm_os_fam == "Ubuntu"
 
     - name: CP ipsec.config for 'RedHat'
-      copy:
-        src: ipsec.conf
-        dest: /etc/strongswan
+      template:
+        src: ipsec.conf.j2
+        dest: /etc/strongswan/ipsec.conf
         mode: "0644"
       when: vm_os_fam == "RedHat"
 
@@ -206,3 +206,4 @@
     - Apply changes and Reload for sysctl
     - Restarted Services for 'Debian/Ubuntu'
     - Restarted Services for 'RedHat'
+    - RM .sh Scritps

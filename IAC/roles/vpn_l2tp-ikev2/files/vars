@@ -6,7 +6,7 @@ IPT_FILE=/etc/iptables.rules
 IPT_FILE2=/etc/iptables/rules.v4
 
 VPN_ROUTE_RANGE=10.1.1.0/24
-VPN_IP_SERVER=93.183.70.125
+VPN_DOMAIN=vpn.fisherdevops.tech
 
 IPT_PST=/etc/init.d/iptables-persistent
 IPT_PST2=/usr/share/netfilter-persistent/plugins.d/15-ip4tables

@@ -3,6 +3,7 @@ config setup
     uniqueids=yes
 
 conn rw-base
+    leftid=@{{ vpn_domain }}
     fragmentation=yes
     dpdaction=clear
     dpdtimeout=90s
