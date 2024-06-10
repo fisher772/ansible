@@ -1,7 +1,9 @@
 config setup
     charondebug="ike 2, knl 2, cfg 2, net 2, esp 2, dmn 2, mgr 2"
+    uniqueids=yes
 
 conn rw-base
+    leftid=@{{ vpn_domain }}
     fragmentation=yes
     dpdaction=clear
     dpdtimeout=90s
@@ -9,7 +11,6 @@ conn rw-base
     ikelifetime=1h
     lifetime=1h
     auto=add
-    mark=%unique
 
 conn 12tpd-vpn
     also=rw-base

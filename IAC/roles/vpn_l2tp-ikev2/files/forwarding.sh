@@ -10,7 +10,10 @@ update_sysctl() {
 conf_bk "/etc/sysctl.conf"
 conf_bk "/proc/sys/net/ipv4/ip_forward"
 
-cat >> /etc/sysctl.conf <<EOF
+  if ! grep -qs "fisher VPN script" /etc/rc.local; then
+    cat >> /etc/sysctl.conf <<EOF
+
+# Added by fisher VPN script
 
 kernel.msgmnb = 65536
 kernel.msgmax = 65536
@@ -30,6 +33,7 @@ net.core.rmem_max = 16777216
 net.ipv4.tcp_rmem = 4096 87380 16777216
 net.ipv4.tcp_wmem = 4096 87380 16777216
 EOF
+  fi
 }
 
 setup() {
