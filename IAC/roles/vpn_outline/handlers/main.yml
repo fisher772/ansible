@@ -1,2 +1,15 @@
 ---
 # handlers file for vpn_outline
+- name: CP handler.sh
+  copy:
+    src: handler.sh
+    dest: "{{ path_linux }}"
+    mode: "+x"
+
+- name: RUN handler.sh
+  command: bash -c "{{ path_linux }}/handler.sh"
+
+- name: RM install_server.sh
+  file:
+    path: "{{ path_linux }}/install_server.sh"
+    state: absent

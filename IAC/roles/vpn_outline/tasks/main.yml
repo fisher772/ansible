@@ -1,2 +1,122 @@
 ---
 # tasks file for vpn_outline
+- name: Test ping
+  ping:
+
+#####Block for Debian/Ubuntu#####
+- block:
+    - name: Execute Upgrade unix Packages 'Debian/Ubuntu'
+      apt:
+        upgrade: true
+        update_cache: true
+        state: latest
+  when: vm_os_fam == "Debian"
+     or vm_os_fam == "Ubuntu"
+
+#####Block for RedHat#####
+- block:
+    - name: Execute Update unix Packages 'RedHat'
+      yum:
+        name: '*'
+        state: latest
+  when: vm_os_fam == "RedHat"
+
+- name: MD temp for Outline objects
+  file:
+    path: "{{ path_linux }}"
+    state: directory
+    mode: "0700"
+  notify:
+    - CP handler.sh
+    - RUN handler.sh
+    - RM install_server.sh
+
+##### Block for Create Users/Groups and Add grants #####
+- block:
+    - name: Combine groups
+      set_fact:
+        combined_groups: "{{ combined_groups | default([]) + (iac_group.split() if iac_group!= '' else []) + (vpn_group.split() if vpn_group!= '' else []) }}"
+
+    - name: Create Users Groups
+      group:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ combined_groups }}"
+
+    - name: Create User and SSH key for Ansible
+      user:
+        name: "{{ iac_user }}"
+        password: "{{ iac_pw }}"
+        groups:
+          - "{{ iac_group }}"
+          - "{{ vpn_group_docker }}"
+        append: true
+        state: present
+        createhome: true
+        generate_ssh_key: true
+        ssh_key_type: "ed25519"
+        ssh_key_file: ".ssh/id_ed25519"
+
+    - name: Allow the Ansible user to run any commands as grant_secret user
+      community.general.sudoers:
+        name: "{{ iac_user }}"
+        state: present
+        user: "{{ iac_user }}"
+        runas: "{{ grant_secret }}"
+        commands: ALL
+
+    - name: Create User and SSH key for VPN
+      user:
+        name: "{{ vpn_user }}"
+        password: "{{ vpn_pw }}"
+        groups:
+          - "{{ vpn_group }}"
+          - "{{ vpn_group_docker }}"
+        createhome: true
+        generate_ssh_key: true
+        ssh_key_type: "ed25519"
+        ssh_key_file: ".ssh/id_ed25519"
+
+    - name: Allow the VPN user to run any commands as grant_secret user
+      community.general.sudoers:
+        name: "{{ vpn_user }}"
+        state: present
+        user: "{{ vpn_user }}"
+        runas: "{{ grant_secret }}"
+        commands:
+          - /bin/systemctl start *
+          - /bin/systemctl stop *
+          - /bin/systemctl restart *
+          - /bin/systemctl reload *
+          - /bin/systemctl status *
+          - /bin/systemctl daemon-reload
+  when: users_status is true
+
+#####Block for Downloads Outline apps for client#####
+- block:
+    - name: Download Outline app-Client for 'Linux'
+      uri:
+        url: "{{ link_linux_client }}"
+        method: GET
+        dest: "{{ path_linux }}/Outline-Client.AppImage"
+      when: vm_os_system == "Linux"
+
+    - name: Download Outline app-Manager for 'Linux'
+      uri:
+        url: "{{ link_linux_manager }}"
+        method: GET
+        dest: "{{ path_linux }}/Outline-Manager.AppImage"
+      when: vm_os_system == "Linux"
+
+    - name: Download Outline app-Client for 'Windows'
+      win_get_url:
+        url: "{{ link_windows_client }}"
+        dest: "{{ path_windows }}\\Outline-Client.exe"
+      when: ansible_os_family == "Windows"
+
+    - name: Download Outline app-Manager for 'Windows'
+      win_get_url:
+        url: "{{ link_windows_manager }}"
+        dest: "{{ path_windows }}\\Outline-Manager.exe"
+      when: ansible_os_family == "Windows"
+  delegate_to: main

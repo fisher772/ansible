@@ -3,6 +3,10 @@ config setup
     uniqueids=yes
 
 conn rw-base
+    encapsulation=yes
+    authby=secret
+    pfs=no
+    keyingtries=5
     leftid=@{{ vpn_domain }}
     fragmentation=yes
     dpdaction=clear

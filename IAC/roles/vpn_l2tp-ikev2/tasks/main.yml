@@ -1,5 +1,5 @@
 ---
-# tasks file for vpn_l2tp
+# tasks file for vpn_l2tp-ikev2
 - name: Test ping
   ping:
 

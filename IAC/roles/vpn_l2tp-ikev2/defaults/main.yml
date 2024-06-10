@@ -1,6 +1,6 @@
 ---
-# defaults file for vpn_l2tp
-MYHOSTS:                "p1-cloud.vpn_l2tp"
+# defaults file for vpn_l2tp-ikev2
+MYHOSTS:                "p1-cloud.vpn_l2tp-ikev2"
 
 sh_status:              true
 users_status:           true

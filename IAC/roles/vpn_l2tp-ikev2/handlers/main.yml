@@ -1,5 +1,5 @@
 ---
-# handlers file for vpn_l2tp
+# handlers file for vpn_l2tp-ikev2
 - name: Install packages for Speedtest
   community.general.snap:
     name:
