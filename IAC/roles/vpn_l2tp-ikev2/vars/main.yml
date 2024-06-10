@@ -1,5 +1,5 @@
 ---
-# vars file for vpn_l2tp
+# vars file for vpn_l2tp-ikev2
 packages:
   - coreutils
   - util-linux

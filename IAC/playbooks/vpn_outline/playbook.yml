@@ -6,4 +6,4 @@
     - credentials.yml
 
   roles:
-    - { role: vpn_l2tp-ikev2, when: ansible_system == 'Linux' }
+    - { role: vpn_outline, when: ansible_system == 'Linux' }

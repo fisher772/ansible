@@ -1,4 +1,5 @@
 # roles/**/*cred*
 # plyabooks/**/*cred*
-playbooks/vpn_l2tp/*cred*
+playbooks/vpn_l2tp-ikev2/*cred*
+playbooks/vpn_outline/*cred*
 inventory/host_vars/p1-cloud.vpn_l2tp.yml

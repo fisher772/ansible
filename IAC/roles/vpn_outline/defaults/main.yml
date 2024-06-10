@@ -1,2 +1,23 @@
 ---
 # defaults file for vpn_outline
+MYHOSTS:                "p1-cloud.vpn_l2tp-ikev2"
+
+app_address:            "https://raw.githubusercontent.com/Jigsaw-Code/outline-server/master/src/server_manager/install_scripts/install_server.sh"
+
+path_windows:           "C:\\temp\\vpn_outline"
+link_windows_client:    "https://s3.amazonaws.com/outline-releases/client/windows/stable/Outline-Client.exe"
+link_windows_manager:   "https://s3.amazonaws.com/outline-releases/manager/windows/stable/Outline-Manager.exe"
+
+path_linux:             "/temp/vpn_outline"
+link_linux_client:      "https://s3.amazonaws.com/outline-releases/client/linux/stable/Outline-Client.AppImage"
+link_linux_manager:     "https://s3.amazonaws.com/outline-releases/manager/linux/stable/Outline-Manager.AppImage"
+
+users_status:           true
+app_status:             true
+
+vm_os_system:           "{{ ansible_system }}"
+vm_os_fam:              "{{ ansible_facts['os_family'] }}"
+vm_os_distrib:          "{{ ansible_facts['distribution'] }}"
+vm_os_mj_ver:           "{{ ansible_facts['distribution_major_version'] }}"
+vm_os_arch:             "{{ ansible_facts['architecture'] }}"
+vm_os_release:          "{{ ansible_facts['distribution_release'] }}"
