@@ -5,8 +5,6 @@ conn ikev2-vpn
     keyexchange=ikev2
     forceencaps=yes
     rekey=no
-    leftsubnet=%dynamic[/1701]
-    rightsubnet=%dynamic
     left=%any
     leftid={{ vpn_ip_server }}
     leftcert=server-cert.pem

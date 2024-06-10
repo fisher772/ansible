@@ -11,6 +11,9 @@ packages:
   - curl
   - wget
   - iptables
+  - iftop
+  - nload
+  - nethogs
   - dnsutils
   - iproute2
   - net-tools
@@ -32,4 +35,3 @@ services:
   - strongswan
   - xl2tpd
   - fail2ban
-  - telegraf

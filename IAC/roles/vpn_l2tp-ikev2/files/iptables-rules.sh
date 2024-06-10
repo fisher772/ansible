@@ -24,18 +24,20 @@ update_iptables() {
     systemctl stop fail2ban >/dev/null 2>&1
 
     iptables -F && iptables -X
-    iptables -A INPUT -p udp -m udp --dport 1701 -m policy --dir in --pol none -j DROP
+    iptables -A INPUT -p udp -m multiport --dports 500,4500 -j ACCEPT
+    iptables -t nat -A POSTROUTING -s "$VPN_ROUTE_RANGE" -o eth0 -j MASQUERADE
+    iptables -t nat -A POSTROUTING -s "$VPN_ROUTE_RANGE" -o eth0 -m policy --pol ipsec --dir out -j ACCEPT
+    iptables -t mangle -A FORWARD -s "$VPN_ROUTE_RANGE" -o eth0 -p tcp -m tcp --tcp-flags SYN,RST SYN -m tcpmss --mss 1361:1536 -j TCPMSS --set-mss 1360
+    iptables -t filter -A FORWARD --match policy --pol ipsec --dir in --proto esp -s "$VPN_ROUTE_RANGE" -j ACCEPT
+    iptables -t filter -A FORWARD --match policy --pol ipsec --dir out --proto esp -d "$VPN_ROUTE_RANGE" -j ACCEPT
+    iptables -A INPUT -p udp -m udp --dport 1701 -m policy --dir in --pol ipsec -j ACCEPT
     iptables -A INPUT -m conntrack --ctstate INVALID -j DROP
     iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-    iptables -A INPUT -p udp -m multiport --dports 500,4500 -j ACCEPT
-    iptables -A INPUT -p udp -m udp --dport 1701 -m policy --dir in --pol ipsec -j ACCEPT
-    iptables -A INPUT -p udp -m udp --dport 1701 -j DROP
     iptables -A FORWARD -m conntrack --ctstate INVALID -j DROP
     iptables -A FORWARD -i eth0 -o ppp+ -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
     iptables -A FORWARD -i ppp+ -o eth0 -j ACCEPT
     iptables -A FORWARD -i ppp+ -o ppp+ -j ACCEPT
     iptables -A FORWARD -j DROP
-    iptables -t nat -A POSTROUTING -s "$VPN_ROUTE_RANGE" -o eth0 -j MASQUERADE
 
     iptables-legacy-save >> "$IPT_FILE"
     if [ -f "$IPT_FILE2" ]; then
@@ -100,7 +102,6 @@ EOF
       echo '#!/bin/sh' > /etc/rc.local
     fi
 cat >> /etc/rc.local <<'EOF'
-
 # Added by fisher VPN script
 (sleep 15
 systemctl restart ipsec
