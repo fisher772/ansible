@@ -1,9 +1,5 @@
 ---
-<<<<<<< HEAD
-# vars file for vpn_l2tp
-=======
 # vars file for vpn_l2tp-ikev2
->>>>>>> devops
 packages:
   - coreutils
   - util-linux
