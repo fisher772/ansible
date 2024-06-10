@@ -30,6 +30,7 @@ update_iptables() {
     iptables -t mangle -A FORWARD -s "$VPN_ROUTE_RANGE" -o eth0 -p tcp -m tcp --tcp-flags SYN,RST SYN -m tcpmss --mss 1361:1536 -j TCPMSS --set-mss 1360
     iptables -t filter -A FORWARD --match policy --pol ipsec --dir in --proto esp -s "$VPN_ROUTE_RANGE" -j ACCEPT
     iptables -t filter -A FORWARD --match policy --pol ipsec --dir out --proto esp -d "$VPN_ROUTE_RANGE" -j ACCEPT
+    iptables -I INPUT -p udp --dport 1701 -m policy --dir in --pol none -j DROP
     iptables -A INPUT -p udp -m udp --dport 1701 -m policy --dir in --pol ipsec -j ACCEPT
     iptables -A INPUT -m conntrack --ctstate INVALID -j DROP
     iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
