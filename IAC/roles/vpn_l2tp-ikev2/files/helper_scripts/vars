@@ -1,0 +1,5 @@
+PATH_KEYS_1=/etc/ipsec.d
+PATH_KEYS_2=/etc/strongswan/ipsec.d
+
+PATH_CONF_1=/etc/ipsec.secrets
+PATH_CONF_2=/etc/strongswan/ipsec.secrets

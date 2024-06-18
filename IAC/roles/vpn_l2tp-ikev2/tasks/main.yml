@@ -207,3 +207,34 @@
     - Restarted Services for 'Debian/Ubuntu'
     - Restarted Services for 'RedHat'
     - RM .sh Scritps
+
+- name: MD tmp for .sh Helper Scripts on VPN server
+  file:
+    path: /tmp/vpn_sh_helper
+    state: directory
+    mode: "0700"
+
+- name: CP Helper .sh for create EAP-users for VPN server
+  copy:
+    src: "{{ item }}"
+    dest: /tmp/vpn_sh_helper
+    mode: "+x"
+  loop: "{{ query('fileglob', '{{ helper_folder }}/*.sh', wantlist=True) }}"
+  when: sh_status is true
+
+- name: MD tmp for .cmd Helper Scripts on WIN client
+  win_file:
+    path: C:\Temp\vpn_config_helper
+    state: directory
+  ignore_errors: true
+  when: win_status is true
+  delegate_to: main
+
+- name: CP Helper config connections .cmd for WIN client
+  win_copy:
+    src: "{{ item }}"
+    dest: C:\Temp\vpn_config_helper
+  loop: "{{ query('fileglob', '{{ helper_folder }}/*.cmd', wantlist=True) }}"
+  ignore_errors: true
+  when: win_status is true
+  delegate_to: main
