@@ -1,16 +1,14 @@
 config setup
-    charondebug="ike 2, knl 2, cfg 2, net 2, esp 2, dmn 2, mgr 2"
+    charondebug="ike 4, knl 4, cfg 4, net 0, esp 4, dmn 4, mgr 4"
     uniqueids=yes
 
 conn rw-base
-    encapsulation=yes
-    pfs=yes
     keyingtries=5
     fragmentation=yes
     dpdaction=clear
     dpdtimeout=90s
     dpddelay=30s
-    ikelifetime=1h
+    ikelifetime=8h
     lifetime=1h
     auto=add
 
