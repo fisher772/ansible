@@ -1,4 +1,8 @@
-PATH_KEYS=/etc/ipsec.d
+PATH_KEYS_1=/etc/ipsec.d
+PATH_KEYS_2=/etc/strongswan/ipsec.d
+
+PATH_CONF_1=/etc/ipsec.secrets
+PATH_CONF_2=/etc/strongswan/ipsec.secrets
 
 SYS_DT=$(date +%F-%T | tr ':' '_')
 
@@ -7,6 +11,9 @@ IPT_FILE2=/etc/iptables/rules.v4
 
 VPN_ROUTE_RANGE=10.1.1.0/24
 VPN_DOMAIN=vpn.fisherdevops.tech
+VPN_CERT_C=COM
+VPN_CERT_O="VPN FISHERDEVOPS"
+VPN_CERT_CN="VPN FISHERDEVOPS CA"
 
 IPT_PST=/etc/init.d/iptables-persistent
 IPT_PST2=/usr/share/netfilter-persistent/plugins.d/15-ip4tables

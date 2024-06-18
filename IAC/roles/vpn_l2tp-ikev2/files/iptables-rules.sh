@@ -40,7 +40,7 @@ update_iptables() {
     iptables -A FORWARD -i ppp+ -o ppp+ -j ACCEPT
     iptables -A FORWARD -j DROP
 
-    iptables-legacy-save >> "$IPT_FILE"
+    iptables-save >> "$IPT_FILE"
     if [ -f "$IPT_FILE2" ]; then
         conf_bk "$IPT_FILE2"
         /bin/cp -f "$IPT_FILE" "$IPT_FILE2"
@@ -57,7 +57,7 @@ enable_on_boot() {
     mkdir -p /etc/network/if-pre-up.d
 cat > /etc/network/if-pre-up.d/iptablesload <<'EOF'
 #!/bin/sh
-iptables-legacy-restore < /etc/iptables.rules
+iptables-restore < /etc/iptables.rules
 exit 0
 EOF
     chmod +x /etc/network/if-pre-up.d/iptablesload
@@ -102,7 +102,7 @@ EOF
     else
       echo '#!/bin/sh' > /etc/rc.local
     fi
-cat >> /etc/rc.local <<'EOF'
+cat >> /etc/rc.local <<EOF
 # Added by fisher VPN script
 (sleep 15
 systemctl restart ipsec
