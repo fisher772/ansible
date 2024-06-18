@@ -4,7 +4,9 @@ MYHOSTS:                "p1-cloud.vpn_l2tp-ikev2"
 
 sh_status:              true
 users_status:           true
+win_status:             true
 
+helper_folder:          "/home/ansible/ansible/projects/IAC/roles/vpn_l2tp-ikev2/files/helper_scripts"
 src_folder:             "/home/ansible/ansible/projects/IAC/roles/vpn_l2tp-ikev2/files"
 
 vm_os_fam:              "{{ ansible_facts['os_family'] }}"
