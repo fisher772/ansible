@@ -2,7 +2,7 @@ config setup
     charondebug="ike 4, knl 4, cfg 4, net 0, esp 4, dmn 4, mgr 4"
     uniqueids=yes
 
-conn rw-base
+conn %default
     keyingtries=5
     fragmentation=yes
     dpdaction=clear
@@ -16,8 +16,7 @@ conn rw-base
     ike=chacha20poly1305-sha512-curve25519-prfsha512,aes256gcm16-sha384-prfsha384-ecp384,aes256-sha1-modp1024,aes128-sha1-modp1024,3des-sha1-modp1024,aes256-sha256-modp2048!
     esp=chacha20poly1305-sha512,aes256gcm16-ecp384,aes256-sha256,aes256-sha1,3des-sha1!
 
-conn 12tpd-vpn
-    also=rw-base
+conn l2tpd-psk
     leftsubnet=%dynamic[/1701]
     rightsubnet=%dynamic
     leftauth=psk

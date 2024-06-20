@@ -14,7 +14,7 @@ check_dir() {
 }
 
 create_dir() {
-  mkdir -p "$path_keys_true"/{cacerts,certs,private,users_certs}
+  mkdir -p "$path_keys_true"/{cacerts,certs,private,users_creds}
 }
 
 create_keys() {
@@ -45,7 +45,7 @@ create_eap_user() {
 $user_name : EAP "$user_pw"
 EOF
 
-    cat >> "$path_keys_true/users_creds/${user_name}.txt" <<EOF
+    cat > "$path_keys_true/users_creds/${user_name}.txt" <<EOF
 user: $user_name
 password: $user_pw
 EOF
