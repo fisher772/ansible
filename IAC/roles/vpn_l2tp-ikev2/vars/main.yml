@@ -16,7 +16,6 @@ packages:
   - nethogs
   - dnsutils
   - iproute2
-  - net-tools
   - gawk
   - tree
   - nmap
@@ -24,7 +23,6 @@ packages:
   - mlocate
   - snapd
   - openssl
-  - uuid-runtime
   - strongswan-pki
   - libcharon-extra-plugins
   - libcharon-extauth-plugins
