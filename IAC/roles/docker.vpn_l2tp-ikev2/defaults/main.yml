@@ -1,0 +1,3 @@
+---
+# defaults file for docker.vpn_l2tp-ikev2
+MYHOSTS:        "p1-cloud"

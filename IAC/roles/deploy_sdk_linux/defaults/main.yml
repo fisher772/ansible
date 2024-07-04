@@ -5,6 +5,8 @@ MYHOSTS:                "test"
 docker_mirrors_status:  false
 
 git_status:             false
+git_cfg_status:         false
+git_vars_path:          "/home/ansible/ansible/projects/IAC/playbooks/roles/deploy_sdk_linux/vars/git_vars.yml"
 dest_path:              "/home/ansible/ansible/projects/IAC/playbooks/roles/deploy_sdk_linux/vars/vers_distribs.yml"
 github_url:             "https://api.github.com/user/keys"
 path_key:               "/root/.ssh/id_ed25519.pub"

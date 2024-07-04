@@ -1,6 +1,6 @@
 ---
 # defaults file for vpn_outline
-MYHOSTS:                "p1-cloud.vpn_l2tp-ikev2"
+MYHOSTS:                "p1-cloud"
 
 app_address:            "https://raw.githubusercontent.com/Jigsaw-Code/outline-server/master/src/server_manager/install_scripts/install_server.sh"
 
