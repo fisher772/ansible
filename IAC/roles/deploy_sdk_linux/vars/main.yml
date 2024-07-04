@@ -1,10 +1,10 @@
 ---
 # vars file for deploy_sdk_linux
-git_cfg:
-  - { name: 'init.defaultBranch', value: 'main' }
-  - { name: 'user.name', value: 'fisher772' }
-  - { name: 'user.email', value: 'kovachvladislav99@gmail.com' }
-  - { name: 'alias.ci', value: 'commit' }
+#git_cfg:
+#  - { name: 'init.defaultBranch', value: '' }
+#  - { name: 'user.name', value: '' }
+#  - { name: 'user.email', value: '' }
+#  - { name: 'alias.ci', value: '' }
 
 packages:
   - mc
@@ -16,6 +16,8 @@ packages:
   - wget
   - telnet
   - mlocate
+  - git
+  - make
 
 services:
   - docker-ce

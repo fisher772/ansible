@@ -2,4 +2,5 @@
 # plyabooks/**/*cred*
 playbooks/vpn_l2tp-ikev2/*cred*
 playbooks/vpn_outline/*cred*
+roles/deploy_sdk_linux/vars/git_vars.yml
 inventory/host_vars/p1-cloud.vpn_l2tp.yml

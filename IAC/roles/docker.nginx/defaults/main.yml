@@ -1,0 +1,3 @@
+---
+# defaults file for docker.nginx
+MYHOSTS:        "p1-cloud"

@@ -1,0 +1,52 @@
+---
+# tasks file for docker.vaultwarden
+- name: Ping test
+  ping:
+
+- name: Start Docker service
+  service:
+    name: docker
+    state: started
+
+- block:
+    - name: Stop container
+      ansible.builtin.docker_container:
+        name: vaultwarden
+        state: stopped
+
+    - name: Delete container
+      ansible.builtin.docker_container:
+        name: vaultwardenа
+        state: absent
+
+    - name: Clear all unused Docker volumes
+      ansible.builtin.docker_volume:
+        prune: true
+
+    - name: Delete image
+      ansible.builtin.docker_image:
+        name: vaultwarden/server
+        state: absent
+  when: check_result == 0
+
+- name: Create necessary volumes for Vaultwarden
+  volumes:
+    name: data
+    state: present
+    force: true
+  register: data_volume
+
+- name: Run Vaultwarden container
+  ansible.builtin.docker_container:
+    name: vaultwarden
+    image: vaultwarden/server
+    state: started
+    restart_policy: unless-stopped
+    hostname: vaultwarden
+    volumes:
+      - "{{ data_volume.path }}:/data/"
+    env:
+      TZ: "{{ EKB }}"
+    networks:
+      - name: nginx
+        attach: true

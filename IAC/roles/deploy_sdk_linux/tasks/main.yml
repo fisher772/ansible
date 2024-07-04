@@ -128,6 +128,7 @@
         scope: global
       loop: "{{ git_cfg }}"
       no_log: true
+      when: git_cfg_status is true
 
     - name: Read SSH key from file on the remote host
       slurp:

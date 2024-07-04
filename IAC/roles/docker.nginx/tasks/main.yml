@@ -1,0 +1,84 @@
+---
+# tasks file for docker.nginx
+- name: Ping test
+  ping:
+
+- name: Start Docker service
+  service:
+    name: docker
+    state: started
+
+- name: Check Nginx
+  shell: docker ps -a | grep -q "nginx"
+  register: check_result
+  ignore_errors: true
+
+- block:
+    - name: Stop container
+      ansible.builtin.docker_container:
+        name: nginx
+        state: stopped
+
+    - name: Delete container
+      ansible.builtin.docker_container:
+        name: nginx
+        state: absent
+
+    - name: Clear all unused Docker volumes
+      ansible.builtin.docker_volume:
+        prune: true
+
+    - name: Delete image
+      ansible.builtin.docker_image:
+        name: fisher/nginx-le
+        state: absent
+  when: check_result == 0
+
+- name: Create necessary volumes for Nginx
+  volumes:
+    name: ssl
+    state: present
+    force: true
+  register: ssl_volume
+
+- name: Create necessary volumes for Nginx
+  volumes:
+    name: conf
+    state: present
+    force: true
+  register: conf_volume
+
+- name: Create necessary volumes for Nginx
+  volumes:
+    name: logs
+    state: present
+    force: true
+  register: logs_volume
+
+- name: Run Nginx container
+  ansible.builtin.docker_container:
+    name: nginx
+    image: fisher/nginx-le
+    restart_policy: always
+    hostname: nginx
+    published_ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "{{ ssl_volume.path }}:/etc/nginx/ssl"
+      - "{{ conf_volume.path }}:/etc/nginx"
+      - "{{ logs_volume.path }}:/var/log/nginx"
+      - "{{ logs_volume.path }}:/var/log/letsencrypt"
+    env:
+      TZ: "{{ EKB }}"
+      LETSENCRYPT: "{{ STATUS }}"
+      LE_EMAIL: "{{ EMAIL }}"
+      LE_FQDN: "{{ FQDN }}"
+      LE_CERT_CHAIN: "{{ CERT_CHAIN }}"
+      LE_CERT_FQDN: "{{ CERT_FQDN }}"
+      SERVER_ALIAS: "{{ ALIAS }}"
+      VPN_ADDRESSES: "{{ SEC_IP }}"
+      VPN_SEC: "{{ SEC_STATUS }}"
+    networks:
+      - name: nginx
+        attach: true

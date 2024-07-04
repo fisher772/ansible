@@ -4,6 +4,7 @@
   become: true
   vars_files:
     - credentials.yml
+    - "{{ git_vars_path }}"
 
   roles:
     - { role: deploy_sdk_linux, when: ansible_system == 'Linux' }

@@ -1,0 +1,87 @@
+---
+# tasks file for docker.vpn_l2tp-ikev2
+- name: Ping test
+  ping:
+
+- name: Start Docker service
+  service:
+    name: docker
+    state: started
+
+- block:
+    - name: Stop container
+      ansible.builtin.docker_container:
+        name: vpn-strongswan
+        state: stopped
+
+    - name: Delete container
+      ansible.builtin.docker_container:
+        name: vpn-strongswan
+        state: absent
+
+    - name: Clear all unused Docker volumes
+      ansible.builtin.docker_volume:
+        prune: true
+
+    - name: Delete image
+      ansible.builtin.docker_image:
+        name: fisher/vpn-strongswan
+        state: absent
+  when: check_result == 0
+
+- name: Create necessary volumes for Vpn-strongswan
+  volumes:
+    name: ipsec.d
+    state: present
+    force: true
+  register: ipsec.d_volume
+
+- name: Create necessary volumes for Vpn-strongswan
+  volumes:
+    name: strongswan.d
+    state: present
+    force: true
+  register: strongswan.d_volume
+
+- name: Create necessary volumes for Vpn-strongswan
+  volumes:
+    name: xl2tpd
+    state: present
+    force: true
+  register: xl2tpd_volume
+
+- name: Create necessary volumes for Vpn-strongswan
+  volumes:
+    name: ppp
+    state: present
+    force: true
+  register: ppp_volume
+
+- name: Create necessary volumes for Vpn-strongswan
+  volumes:
+    name: logs
+    state: present
+    force: true
+  register: logs_volume
+
+- name: Run Vpn-strongswan container
+  ansible.builtin.docker_container:
+    name: vpn-strongswan
+    image: fisher/vpn-strongswan
+    state: started
+    privileged: true
+    network_mode: host
+    restart_policy: always
+    hostname: vpn-strongswan
+    volumes:
+      - "{{ ipsec.d_volume.path }}:/etc/ipsec.d"
+      - "{{ strongswan.d_volume.path }}:/etc/strongswan.d"
+      - "{{ xl2tpd_volume.path }}:/etc/xl2tpd"
+      - "{{ ppp_volume.path }}:/etc/ppp"
+      - "{{ logs_volume.path }}:/var/log/vpn"
+    env:
+      TZ: "{{ EKB }}"
+      LE_CERT_STATUS: "{{ CERT_STATUS }}"
+      IPTABLES: "{{ STATUS }}"
+      IPTABLES_INTERFACE: "{{ NET }}"
+      IPTABLES_ENDPOINTS: "{{ IPTAB_ROUTE_RANGE }}"
