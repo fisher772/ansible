@@ -1,0 +1,9 @@
+---
+- name: Docker VPN l2tp-ikev2
+  hosts: "{{ MYHOSTS }}"
+  become: true
+  vars_files:
+    - credentials.yml
+
+  roles:
+    - { role: docker.vpn_l2tp-ikev2 }
