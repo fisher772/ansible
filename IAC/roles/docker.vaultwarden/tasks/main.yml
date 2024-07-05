@@ -16,7 +16,7 @@
 
     - name: Delete container
       ansible.builtin.docker_container:
-        name: vaultwardenа
+        name: vaultwarden
         state: absent
 
     - name: Clear all unused Docker volumes
@@ -28,6 +28,17 @@
         name: vaultwarden/server
         state: absent
   when: check_result == 0
+
+- name: Clone Git Repo
+  git:
+    repo: git@github.com:fisher772/docker_images.git
+    dest: /tmp
+
+- name: MV Conf files for Vaultwarden
+  copy:
+    src: /tmp/docker_images/vaultwarden/settings
+    dest: /var/lib/docker/volumes/nginx_conf/_data/conf.d-le
+  delegate_to: "{{ MYHOSTS }}"
 
 - name: Create necessary volumes for Vaultwarden
   volumes:
