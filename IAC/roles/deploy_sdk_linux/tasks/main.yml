@@ -9,6 +9,10 @@
   args:
     executable: "{{ local_py_interpreter }}"
 
+- name: Include path file vars
+  include_vars:
+    file: "{{ git_vars_path }}"
+
 - name: Add and Insert Data vars in vars_distribs.yml for Scenario
   include_vars:
     file: "{{ dest_path }}"
