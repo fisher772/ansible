@@ -58,7 +58,7 @@
 - name: Run Nginx container
   ansible.builtin.docker_container:
     name: nginx
-    image: fisher/nginx-le
+    image: fisher772/nginx-le
     restart_policy: always
     hostname: nginx
     published_ports:
