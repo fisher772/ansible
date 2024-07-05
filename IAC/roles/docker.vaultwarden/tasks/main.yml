@@ -16,7 +16,7 @@
 
     - name: Delete container
       ansible.builtin.docker_container:
-        name: vaultwardenа
+        name: vaultwarden
         state: absent
 
     - name: Clear all unused Docker volumes
