@@ -1,3 +1,6 @@
 ---
 # defaults file for docker.vaultwarden
 MYHOSTS:        "p1-cloud"
+
+src_folder:             "/tmp/docker_images/vaultwarden/settings"
+dest_folder:             "/var/lib/docker/volumes/nginx_conf/_data/conf.d-le"
