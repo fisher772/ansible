@@ -67,7 +67,7 @@
 - name: Run Vpn-strongswan container
   ansible.builtin.docker_container:
     name: vpn-strongswan
-    image: fisher/vpn-strongswan
+    image: fisher772/vpn-strongswan
     state: started
     privileged: true
     network_mode: host
