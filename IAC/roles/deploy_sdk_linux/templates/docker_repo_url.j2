@@ -5,7 +5,7 @@
 {% elif vm_os_distrib == 'Fedora' and vm_os_mj_ver|int in fedora_vers %}
 {{ url_docker_repo_fedora }}{{ vm_os_mj_ver }}/{{ vm_os_arch }}/stable
 {% elif vm_os_distrib == 'Debian' %}
-{{ url_docker_repo_debain }}{{ vm_os_release }}
+{{ url_docker_repo_debain }} {{ vm_os_release }}
 {% elif vm_os_distrib == 'Ubuntu' %}
-{{ url_docker_repo_ubuntu }}{{ vm_os_release }}
+{{ url_docker_repo_ubuntu }} {{ vm_os_release }}
 {% endif %}

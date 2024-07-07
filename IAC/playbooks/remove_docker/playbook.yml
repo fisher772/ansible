@@ -1,0 +1,9 @@
+---
+- name: Remove Docker on Linux
+  hosts: "{{ MYHOSTS }}"
+  become: true
+  vars_files:
+    - credentials.yml
+
+  roles:
+    - { role: remove_docker, when: ansible_system == 'Linux' }

@@ -27,11 +27,6 @@
     docker_gpg_url: "{{ lookup('template', 'docker_gpg_url.j2') | trim }}"
   delegate_to: localhost
 
-- name: Execute Install Py Modules
-  pip:
-    name: "{{ py_modules }}"
-    state: latest
-
 #####Block for Debian/Ubuntu#####
 - block:
     - name: Execute Upgrade unix Packages 'Debian/Ubuntu'
@@ -45,14 +40,14 @@
         name: "{{ packages }}"
         state: latest
 
-    - name: Add Docker Repository
-      apt_repository:
-        repo: "deb [arch=amd64] {{ docker_repo_url }} stable main"
-        state: present
-
     - name: Add Docker GPG key
       apt_key:
         url: "{{ docker_gpg_url }}"
+        state: present
+
+    - name: Add Docker Repository
+      apt_repository:
+        repo: "deb [arch=amd64] {{ docker_repo_url }} stable main"
         state: present
 
     - name: Install SDK services for 'Debian/Ubuntu'
@@ -92,12 +87,17 @@
       register: services_results
   when: vm_os_fam == "RedHat"
 
+- name: Execute Install Py Modules
+  pip:
+    name: "{{ py_modules }}"
+    state: latest
+
 - name: Execute cmd updatedb
   shell: updatedb
 
 - name: Check if docker-ce was Installed or Updated
   set_fact:
-    docker_installed_or_updated: "{{ services_results.changes.installed | select('search', 'docker-ce') | list | length > 0 }}"
+    docker_installed_or_updated: "{{ services_results.changed }}"
 
 - name: Add ansible user to Docker group
   user:
@@ -118,7 +118,7 @@
   when: docker_installed_or_updated is true
   notify:
     - Stop the Up Docker Containers
-    - Reboot services when Changed in Update
+    - Start and Enable services
     - Start Docker Containers
   become: false
   become_user: "{{ docker_user }}"

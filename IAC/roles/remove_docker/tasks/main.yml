@@ -1,0 +1,87 @@
+---
+# tasks file for remove_docker
+- name: Ping test
+  ping:
+
+#####Block for Debian/Ubuntu#####
+- block:
+    - name: Stop and Disable service for 'Debian/Ubuntu'
+      service:
+        name: docker
+        state: stopped
+        enabled: false
+      ignore_errors: true
+
+    - name: Purge Docker packages for 'Debian/Ubuntu'
+      apt:
+        name: "{{ item }}"
+        state: absent
+        purge: yes
+      loop:
+        - docker-engine
+        - docker
+        - docker.io
+        - docker-ce
+        - docker-buildx-plugin
+        - docker-ce-cli
+        - docker-ce-rootless-extras
+        - docker-compose-plugin
+
+    - name: Remove Docker directories for 'Debian/Ubuntu'
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /var/lib/docker
+        - /var/run/docker.sock
+        - /etc/docker
+      ignore_errors: true
+
+    - name: Autoremove unused packages for 'Debian/Ubuntu'
+      apt:
+        name: '*'
+        state: absent
+        autoremove: true
+  when: vm_os_fam == "Debian"
+     or vm_os_fam == "Ubuntu"
+
+#####Block for RedHat#####
+- block:
+    - name: Stop and Disable service for 'RedHat'
+      service:
+        name: docker
+        state: stopped
+        enabled: false
+      ignore_errors: true
+
+    - name: Purge Docker packages for 'RedHat'
+      yum:
+        name: "{{ item }}"
+        state: absent
+        remove_dependencies: yes
+      loop:
+        - docker
+        - docker-client
+        - docker-client-latest
+        - docker-common
+        - docker-latest
+        - docker-latest-logrotate
+        - docker-logrotate
+        - docker-engine
+
+    - name: Remove Docker directories for 'RedHat'
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /var/lib/docker
+        - /var/run/docker.sock
+        - /etc/docker
+      ignore_errors: true
+
+    - name: Autoremove unused packages for 'RedHat'
+      yum:
+        name: '*'
+        state: absent
+        remove_dependencies: true
+  when: vm_os_fam == "RedHat"
