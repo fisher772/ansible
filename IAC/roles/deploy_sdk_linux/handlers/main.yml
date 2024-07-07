@@ -1,23 +1,17 @@
 ---
 # handlers file for deploy_sdk_linux
 - block:
-    - name: Start and Enable services
-      service:
-        name: "{{ item }}"
-        state: started
-        enabled: true
-      loop: "{{ services_results.changes.installed | reject('search', 'docker-ce') + (docker_installed_or_updated | ternary(['docker'], [])) }}"
-
     - name: Stop the Up Docker Containers
       shell: docker stop "{{ item }}"
       loop: "{{ containers_status.stdout_line }}"
       when: containers_status is not skipped and containers_status.stdout_lines | length > 0
 
-    - name: Reboot services when Changed in Update
+    - name: Start and Enable services
       service:
-        name: "{{ item }}"
+        name: docker
         state: restarted
-      loop: "{{ services_results.changes.updated | reject('search', 'docker-ce') + (docker_installed_or_updated | ternary(['docker'], [])) }}"
+        enabled: true
+      when: docker_installed_or_updated is true
 
     - name: Start Docker Containers
       shell: sleep 10 && docker start {{ item }}

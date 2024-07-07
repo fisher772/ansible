@@ -12,6 +12,7 @@ packages:
   - htop
   - vim
   - python3
+  - python3-pip
   - curl
   - wget
   - telnet

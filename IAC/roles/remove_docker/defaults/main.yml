@@ -1,0 +1,9 @@
+---
+# defaults file for remove_docker
+MYHOSTS:                "p1-cloud"
+
+vm_os_fam:              "{{ ansible_facts['os_family'] }}"
+vm_os_distrib:          "{{ ansible_facts['distribution'] }}"
+vm_os_mj_ver:           "{{ ansible_facts['distribution_major_version'] }}"
+vm_os_arch:             "{{ ansible_facts['architecture'] }}"
+vm_os_release:          "{{ ansible_facts['distribution_release'] }}"
