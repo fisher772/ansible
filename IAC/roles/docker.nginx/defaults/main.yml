@@ -5,7 +5,11 @@ MYHOSTS:          "p1-cloud"
 vars_status:      true
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 email_vars_path:  "/home/ansible/ansible/projects/IAC/roles/docker.nginx/vars/email.yml"
+=======
+email_vars_path:  "/home/ansible/ansible/projects/IAC/roles/docker.nginx/vars/email.yml"
+>>>>>>> devops
 =======
 email_vars_path:  "/home/ansible/ansible/projects/IAC/roles/docker.nginx/vars/email.yml"
 >>>>>>> devops
