@@ -38,6 +38,7 @@
   git:
     repo: git@github.com:fisher772/docker_images.git
     dest: /tmp/git_remote_repo
+    force: true
 
 - name: MV Conf files for Vaultwarden
   shell: mv "{{ src_folder }}/"* "{{ conf_dest_folder }}"
