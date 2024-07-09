@@ -3,6 +3,11 @@
 - name: Ping test
   ping:
 
+- name: Include path file vars
+  include_vars:
+    file: "{{ email_vars_path }}"
+  when: vars_status is true
+
 - name: Start Docker service
   service:
     name: docker

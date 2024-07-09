@@ -1,3 +1,7 @@
 ---
 # defaults file for docker.nginx
-MYHOSTS:        "p1-cloud"
+MYHOSTS:          "p1-cloud"
+
+vars_status:      true
+
+email_vars_path:  "/home/ansible/ansible/projects/IAC/roles/docker.nginx/vars/email.yml"
