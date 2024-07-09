@@ -40,7 +40,10 @@
     dest: /tmp/git_remote_repo
 
 - name: MV Conf files for Vaultwarden
-  shell: mv "{{ src_folder }}/"* "{{ dest_folder }}"
+  shell: mv "{{ src_folder }}/"* "{{ conf_dest_folder }}"
+
+- name: MV Conf-stream files for Vaultwarden
+  shell: mv "{{ src_folder }}/stream/"* "{{ stream_dest_folder }}"
 
 - name: Create necessary volume vaultwarden_data for Vaultwarden
   ansible.builtin.docker_volume:

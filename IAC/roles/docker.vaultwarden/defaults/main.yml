@@ -1,6 +1,7 @@
 ---
 # defaults file for docker.vaultwarden
-MYHOSTS:        "p1-cloud"
+MYHOSTS:                     "p1-cloud"
 
-src_folder:             "/tmp/git_remote_repo/vaultwarden/settings"
-dest_folder:            "/var/lib/docker/volumes/conf_nginx/_data/conf.d-le"
+src_folder:                  "/tmp/git_remote_repo/vaultwarden/settings"
+conf_dest_folder:            "/var/lib/docker/volumes/conf_nginx/_data/conf.d-le"
+stream_dest_folder:          "/var/lib/docker/volumes/conf_nginx/_data/stream.d-le"
