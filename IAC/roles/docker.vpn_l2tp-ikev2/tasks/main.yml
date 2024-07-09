@@ -8,6 +8,11 @@
     name: docker
     state: started
 
+- name: Check Vpn-strongswan
+  shell: docker ps -a | grep -q "vpn-strongswan"
+  register: check_result
+  ignore_errors: true
+
 - block:
     - name: Stop container
       ansible.builtin.docker_container:
@@ -29,35 +34,35 @@
         state: absent
   when: check_result == 0
 
-- name: Create necessary volumes for Vpn-strongswan
+- name: Create necessary volume ipsec.d for Vpn-strongswan
   ansible.builtin.docker_volume:
-    name: ipsec.d
+    name: vpn_ipsec.d
     state: present
-  register: ipsec.d_volume
+  register: vpn_ipsec.d
 
-- name: Create necessary volumes for Vpn-strongswan
+- name: Create necessary volume strongswand.d for Vpn-strongswan
   ansible.builtin.docker_volume:
-    name: strongswan.d
+    name: vpn_strongswan.d
     state: present
-  register: strongswan.d_volume
+  register: vpn_strongswan.d
 
-- name: Create necessary volumes for Vpn-strongswan
+- name: Create necessary volume xl2tpd for Vpn-strongswan
   ansible.builtin.docker_volume:
-    name: xl2tpd
+    name: vpn_xl2tpd
     state: present
-  register: xl2tpd_volume
+  register: vpn_xl2tpd
 
-- name: Create necessary volumes for Vpn-strongswan
+- name: Create necessary volume ppp for Vpn-strongswan
   ansible.builtin.docker_volume:
-    name: ppp
+    name: vpn_ppp
     state: present
-  register: ppp_volume
+  register: vpn_ppp
 
-- name: Create necessary volumes for Vpn-strongswan
+- name: Create necessary volume logs for Vpn-strongswan
   ansible.builtin.docker_volume:
-    name: logs
+    name: vpn_logs
     state: present
-  register: logs_volume
+  register: vpn_logs
 
 - name: Run Vpn-strongswan container
   ansible.builtin.docker_container:
@@ -69,11 +74,11 @@
     restart_policy: always
     hostname: vpn-strongswan
     volumes:
-      - "{{ ipsec.d_volume.path }}:/etc/ipsec.d"
-      - "{{ strongswan.d_volume.path }}:/etc/strongswan.d"
-      - "{{ xl2tpd_volume.path }}:/etc/xl2tpd"
-      - "{{ ppp_volume.path }}:/etc/ppp"
-      - "{{ logs_volume.path }}:/var/log/vpn"
+      - vpn_ipsec.d:/etc/ipsec.d
+      - vpn_strongswan.d:/etc/strongswan.d
+      - vpn_xl2tpd:/etc/xl2tpd
+      - vpn_ppp_volume.path:/etc/ppp
+      - vpn_logs:/var/log/vpn
     env:
       TZ: "{{ EKB }}"
       LE_CERT_STATUS: "{{ CERT_STATUS }}"

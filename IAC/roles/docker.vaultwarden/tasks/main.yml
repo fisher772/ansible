@@ -8,6 +8,11 @@
     name: docker
     state: started
 
+- name: Check Vaultwarden
+  shell: docker ps -a | grep -q "vaultwarden"
+  register: check_result
+  ignore_errors: true
+
 - block:
     - name: Stop container
       ansible.builtin.docker_container:
@@ -40,11 +45,11 @@
     dest: /var/lib/docker/volumes/nginx_conf/_data/conf.d-le
   delegate_to: "{{ MYHOSTS }}"
 
-- name: Create necessary volumes for Vaultwarden
+- name: Create necessary volume vaultwarden_data for Vaultwarden
   ansible.builtin.docker_volume:
-    name: data
+    name: vaultwarden_data
     state: present
-  register: data_volume
+  register: vaultwarden_data
 
 - name: Run Vaultwarden container
   ansible.builtin.docker_container:
@@ -54,9 +59,14 @@
     restart_policy: unless-stopped
     hostname: vaultwarden
     volumes:
-      - "{{ data_volume.path }}:/data/"
+      - vaultwarden_data:/data/
     env:
       TZ: "{{ EKB }}"
     networks:
       - name: nginx
         attach: true
+
+- name: RM Git Repo
+  file:
+    name: /tmp/docker_images
+    state: absent
