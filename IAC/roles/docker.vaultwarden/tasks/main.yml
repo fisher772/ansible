@@ -37,13 +37,10 @@
 - name: Clone Git Repo
   git:
     repo: git@github.com:fisher772/docker_images.git
-    dest: /tmp
+    dest: /tmp/git_remote_repo
 
 - name: MV Conf files for Vaultwarden
-  copy:
-    src: /tmp/docker_images/vaultwarden/settings
-    dest: /var/lib/docker/volumes/nginx_conf/_data/conf.d-le
-  delegate_to: "{{ MYHOSTS }}"
+  shell: mv "{{ src_folder }}/"* "{{ dest_folder }}"
 
 - name: Create necessary volume vaultwarden_data for Vaultwarden
   ansible.builtin.docker_volume:
@@ -64,9 +61,8 @@
       TZ: "{{ EKB }}"
     networks:
       - name: nginx
-        attach: true
 
 - name: RM Git Repo
   file:
-    name: /tmp/docker_images
+    name: /tmp/git_remote_repo
     state: absent
