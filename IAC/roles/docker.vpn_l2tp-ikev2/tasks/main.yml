@@ -36,15 +36,15 @@
 
 - name: Create necessary volume ipsec.d for Vpn-strongswan
   ansible.builtin.docker_volume:
-    name: vpn_ipsec.d
+    name: vpn_ipsec
     state: present
-  register: vpn_ipsec.d
+  register: vpn_ipsec
 
 - name: Create necessary volume strongswand.d for Vpn-strongswan
   ansible.builtin.docker_volume:
-    name: vpn_strongswan.d
+    name: vpn_strongswan
     state: present
-  register: vpn_strongswan.d
+  register: vpn_strongswan
 
 - name: Create necessary volume xl2tpd for Vpn-strongswan
   ansible.builtin.docker_volume:
@@ -74,10 +74,10 @@
     restart_policy: always
     hostname: vpn-strongswan
     volumes:
-      - vpn_ipsec.d:/etc/ipsec.d
-      - vpn_strongswan.d:/etc/strongswan.d
+      - vpn_ipsec:/etc/ipsec.d
+      - vpn_strongswan:/etc/strongswan.d
       - vpn_xl2tpd:/etc/xl2tpd
-      - vpn_ppp_volume.path:/etc/ppp
+      - vpn_ppp:/etc/ppp
       - vpn_logs:/var/log/vpn
     env:
       TZ: "{{ EKB }}"
