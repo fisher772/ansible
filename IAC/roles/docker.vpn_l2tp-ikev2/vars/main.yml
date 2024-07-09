@@ -6,12 +6,12 @@ VPN_CERT_C:           "COM"
 VPN_CERT_O:           "VPN FISHERDEVOPS"
 VPN_CERT_CN:          "VPN FISHERDEVOPS CA"
 
-CERT_STATUS:          true
+CERT_STATUS:          "true"
 
 IPTAB_ROUTE_RANGE:    "10.1.1.0/24"
 
 EKB:                  "Asia/Yekaterinburg"
-STATUS:               true
+STATUS:               "true"
 NET:                  "eth0"
 
 IPSEC_RDNS:           "8.8.8.8,8.8.4.4"
