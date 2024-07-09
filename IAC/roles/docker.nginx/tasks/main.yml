@@ -42,9 +42,9 @@
 
 - name: Create necessary volume conf for Nginx
   ansible.builtin.docker_volume:
-    name: conf
+    name: conf_nginx
     state: present
-  register: conf
+  register: conf_nginx
 
 - name: Create necessary volume nginx-logs for Nginx
   ansible.builtin.docker_volume:
@@ -73,10 +73,10 @@
       - "80:80"
       - "443:443"
     volumes:
-      - "{{ ssl.volume.Mountpoint }}:/etc/nginx/ssl"
-      - "{{ conf.volume.Mountpoint }}:/etc/nginx"
-      - "{{ logs_nginx.volume.Mountpoint }}:/var/log/nginx"
-      - "{{ logs_letsencrypt.volume.Mountpoint }}:/var/log/letsencrypt"
+      - ssl:/etc/nginx/ssl
+      - conf_nginx:/etc/nginx
+      - logs_nginx:/var/log/nginx
+      - logs_letsencrypt:/var/log/letsencrypt
     env:
       TZ: "{{ EKB }}"
       LETSENCRYPT: "{{ STATUS }}"
