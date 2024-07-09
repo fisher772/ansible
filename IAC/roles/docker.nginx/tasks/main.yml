@@ -34,26 +34,34 @@
         state: absent
   when: check_result == 0
 
-- name: Create necessary volumes for Nginx
-  volumes:
+- name: Create necessary volume ssl for Nginx
+  ansible.builtin.docker_volume:
     name: ssl
     state: present
-    force: true
-  register: ssl_volume
+  register: ssl
 
-- name: Create necessary volumes for Nginx
-  volumes:
+- name: Create necessary volume conf for Nginx
+  ansible.builtin.docker_volume:
     name: conf
     state: present
-    force: true
-  register: conf_volume
+  register: conf
 
-- name: Create necessary volumes for Nginx
-  volumes:
-    name: logs
+- name: Create necessary volume nginx-logs for Nginx
+  ansible.builtin.docker_volume:
+    name: logs_nginx
     state: present
-    force: true
-  register: logs_volume
+  register: logs_nginx
+
+- name: Create necessary volume letsencrypt-logs for Nginx
+  ansible.builtin.docker_volume:
+    name: logs_letsencrypt
+    state: present
+  register: logs_letsencrypt
+
+- name: Ensure network exists
+  ansible.builtin.docker_network:
+    name: nginx
+    state: present
 
 - name: Run Nginx container
   ansible.builtin.docker_container:
@@ -65,10 +73,10 @@
       - "80:80"
       - "443:443"
     volumes:
-      - "{{ ssl_volume.path }}:/etc/nginx/ssl"
-      - "{{ conf_volume.path }}:/etc/nginx"
-      - "{{ logs_volume.path }}:/var/log/nginx"
-      - "{{ logs_volume.path }}:/var/log/letsencrypt"
+      - "{{ ssl.volume.Mountpoint }}:/etc/nginx/ssl"
+      - "{{ conf.volume.Mountpoint }}:/etc/nginx"
+      - "{{ logs_nginx.volume.Mountpoint }}:/var/log/nginx"
+      - "{{ logs_letsencrypt.volume.Mountpoint }}:/var/log/letsencrypt"
     env:
       TZ: "{{ EKB }}"
       LETSENCRYPT: "{{ STATUS }}"
@@ -81,4 +89,3 @@
       VPN_SEC: "{{ SEC_STATUS }}"
     networks:
       - name: nginx
-        attach: true

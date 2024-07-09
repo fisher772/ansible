@@ -30,38 +30,33 @@
   when: check_result == 0
 
 - name: Create necessary volumes for Vpn-strongswan
-  volumes:
+  ansible.builtin.docker_volume:
     name: ipsec.d
     state: present
-    force: true
   register: ipsec.d_volume
 
 - name: Create necessary volumes for Vpn-strongswan
-  volumes:
+  ansible.builtin.docker_volume:
     name: strongswan.d
     state: present
-    force: true
   register: strongswan.d_volume
 
 - name: Create necessary volumes for Vpn-strongswan
-  volumes:
+  ansible.builtin.docker_volume:
     name: xl2tpd
     state: present
-    force: true
   register: xl2tpd_volume
 
 - name: Create necessary volumes for Vpn-strongswan
-  volumes:
+  ansible.builtin.docker_volume:
     name: ppp
     state: present
-    force: true
   register: ppp_volume
 
 - name: Create necessary volumes for Vpn-strongswan
-  volumes:
+  ansible.builtin.docker_volume:
     name: logs
     state: present
-    force: true
   register: logs_volume
 
 - name: Run Vpn-strongswan container

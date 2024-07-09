@@ -41,10 +41,9 @@
   delegate_to: "{{ MYHOSTS }}"
 
 - name: Create necessary volumes for Vaultwarden
-  volumes:
+  ansible.builtin.docker_volume:
     name: data
     state: present
-    force: true
   register: data_volume
 
 - name: Run Vaultwarden container
