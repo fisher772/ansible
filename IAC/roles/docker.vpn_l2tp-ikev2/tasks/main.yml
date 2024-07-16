@@ -78,7 +78,7 @@
       - vpn_strongswan:/etc/strongswan.d
       - vpn_xl2tpd:/etc/xl2tpd
       - vpn_ppp:/etc/ppp
-      - vpn_logs:/var/log/vpn
+      - vpn_logs:/var/log
     env:
       TZ: "{{ EKB }}"
       LE_CERT_STATUS: "{{ CERT_STATUS }}"
