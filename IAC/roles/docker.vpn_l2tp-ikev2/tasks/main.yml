@@ -84,4 +84,6 @@
       LE_CERT_STATUS: "{{ CERT_STATUS }}"
       IPTABLES: "{{ STATUS }}"
       IPTABLES_INTERFACE: "{{ NET }}"
+      O_IPTABLES_INTERFACE: "{{ O_NET }}"
       IPTABLES_ENDPOINTS: "{{ IPTAB_ROUTE_RANGE }}"
+      #- SNAT_IP="{{ SNAT }}"
