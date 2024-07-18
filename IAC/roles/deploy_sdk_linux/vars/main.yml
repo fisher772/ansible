@@ -16,7 +16,6 @@ packages:
   - curl
   - wget
   - telnet
-  - mlocate
   - git
   - make
 

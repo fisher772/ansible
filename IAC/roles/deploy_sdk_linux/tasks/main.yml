@@ -37,13 +37,14 @@
 
     - name: Install utils/unix-packages for 'Debian/Ubuntu'
       apt:
-        name: "{{ packages }}"
+        name: "{{ packages + ['plocate'] }}"
         state: latest
 
     - name: Add Docker GPG key
       apt_key:
         url: "{{ docker_gpg_url }}"
         state: present
+        validate_certs: true
 
     - name: Add Docker Repository
       apt_repository:
@@ -68,7 +69,7 @@
 
     - name: Install utils/unix-packages for 'RedHat'
       yum:
-        name: "{{ packages + ['yum-utils'] + ['epel-release'] }}"
+        name: "{{ packages + ['yum-utils'] + ['epel-release'] + ['mlocate'] }}"
         state: latest
 
     - name: Add a Docker Repository
@@ -91,6 +92,7 @@
   pip:
     name: "{{ py_modules }}"
     state: latest
+    extra_args: "--break-system-packages"
 
 - name: Execute cmd updatedb
   shell: updatedb

@@ -127,6 +127,7 @@ fi
 export ANSIBLE_CONFIG=/home/ansible/ansible/projects/IAC/inventory/ansible.cfg
 #enable path to venv module ansible-lint
 export PATH=$PATH:/home/ansible/ansible/ansible-lint-venv/bin/python3
+export PYTHONPATH="/home/ansible/ansible/ansible-lint-venv/lib/python3.12/site-packages:$PYTHONPATH"
 #enable vagrant
 export VAGRANT_WSL_ENABLE_WINDOWS_ACCESS="1"
 #enable default path vagrant
