@@ -3,6 +3,9 @@
 - name: Ping test
   ping:
 
+- name: SSH keyscan
+  shell: ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+
 - name: Generate vars in a file for their use in a Scenario
   script: gen_vers_distribs.py
   delegate_to: localhost
