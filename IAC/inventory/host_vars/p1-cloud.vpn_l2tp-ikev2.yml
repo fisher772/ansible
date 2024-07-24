@@ -1,6 +1,0 @@
-ansible_user:                "root"
-ansible_port:                2231
-ansible_python_interpreter:  "/usr/bin/python3"
-
-hostname:
-  name: p1-cloud.vpn_l2tp-ikev2

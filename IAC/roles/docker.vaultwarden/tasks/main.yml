@@ -34,39 +34,46 @@
         state: absent
   when: check_result == 0
 
-- name: Clone Git Repo
-  git:
-    repo: git@github.com:fisher772/docker_images.git
-    dest: /tmp/git_remote_repo
-    force: true
+- import_tasks: "{{ import_file }}"
+  when: import_status is true
 
-- name: MV Conf files for Vaultwarden
-  shell: mv "{{ src_folder }}/"*.conf "{{ conf_dest_folder }}"
+- block:
+    - name: Clone Git Repo
+      git:
+        repo: git@github.com:fisher772/docker_images.git
+        dest: /tmp/git_remote_repo
+        force: true
 
-- name: MV Conf-stream files for Vaultwarden
-  shell: mv "{{ src_folder }}/stream/"* "{{ stream_dest_folder }}"
+    - name: MV Conf files for Vaultwarden
+      shell: mv "{{ src_folder }}/"*.conf "{{ conf_dest_folder }}"
 
-- name: Create necessary volume vaultwarden_data for Vaultwarden
-  ansible.builtin.docker_volume:
-    name: vaultwarden_data
-    state: present
-  register: vaultwarden_data
+    - name: MV Conf-stream files for Vaultwarden
+      shell: mv "{{ src_folder }}/stream/"* "{{ stream_dest_folder }}"
 
-- name: Run Vaultwarden container
-  ansible.builtin.docker_container:
-    name: vaultwarden
-    image: vaultwarden/server
-    state: started
-    restart_policy: unless-stopped
-    hostname: vaultwarden
-    volumes:
-      - vaultwarden_data:/data/
-    env:
-      TZ: "{{ EKB }}"
-    networks:
-      - name: nginx
+    - name: Create necessary volume vaultwarden_data for Vaultwarden
+      ansible.builtin.docker_volume:
+        name: vaultwarden_data
+        state: present
+      register: vaultwarden_data
 
-- name: RM Git Repo
-  file:
-    name: /tmp/git_remote_repo
-    state: absent
+    - name: Run Vaultwarden container
+      ansible.builtin.docker_container:
+        name: vaultwarden
+        image: vaultwarden/server
+        state: started
+        restart_policy: unless-stopped
+        hostname: vaultwarden
+        volumes:
+          - vaultwarden_data:/data/
+          - vaultwarden_logs:/var/log/vaultwarden
+        env:
+          TZ: "{{ EKB }}"
+          LOG_FILE: "{{ LOGS }}"
+        networks:
+          - name: nginx
+
+    - name: RM Git Repo
+      file:
+        name: /tmp/git_remote_repo
+        state: absent
+  when: import_status is not true
