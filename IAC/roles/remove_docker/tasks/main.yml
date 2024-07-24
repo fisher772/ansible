@@ -3,6 +3,24 @@
 - name: Ping test
   ping:
 
+- block:
+    - name: Stop all containers
+      shell: docker stop $(docker ps -aq)
+
+    - name: Remove all containers
+      shell: docker rm $(docker ps -aq)
+
+    - name: Remove all images
+      shell: docker rmi $(docker image ls -q)
+
+    - name: Remove all networks
+      shell: docker network rm $(docker network ls -q | grep -vE '^bridge|^host$|^none$')
+
+    - name: Remove all volumes
+      shell: docker volume rm $(docker volume ls -q)
+  ignore_errors: true
+  no_log: true
+
 #####Block for Debian/Ubuntu#####
 - block:
     - name: Stop and Disable service for 'Debian/Ubuntu'
