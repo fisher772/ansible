@@ -1,3 +1,6 @@
 ---
 # vars file for docker.vaultwarden
-EKB:            "Asia/Yekaterinburg"
+EKB:             "Asia/Yekaterinburg"
+
+LOGS:            "/data/vaultwarden.log"
+ALT_LOGS:        "/var/log/vaultwarden/vaultwarden.log"

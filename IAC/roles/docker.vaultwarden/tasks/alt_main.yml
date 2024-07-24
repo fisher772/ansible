@@ -1,0 +1,42 @@
+---
+
+- name: Create necessary volume vaultwarden_data for Vaultwarden
+  ansible.builtin.docker_volume:
+    name: vaultwarden_data
+    state: present
+  register: vaultwarden_data
+
+- name: Create necessary volume vaultwarden_logs for Vaultwarden
+  ansible.builtin.docker_volume:
+    name: vaultwarden_logs
+    state: present
+  register: vaultwarden_logs
+
+- name: Create necessary volume vaultwarden_nginx for Vaultwarden
+  ansible.builtin.docker_volume:
+    name: vaultwarden_nginx
+    state: present
+  register: vaultwarden_nginx
+
+- name: Run Vaultwarden container
+  ansible.builtin.docker_container:
+    name: vaultwarden
+    image: fisher772/vaultwarden
+    state: started
+    restart_policy: unless-stopped
+    hostname: vaultwarden
+    volumes:
+      - vaultwarden_data:/data/
+      - vaultwarden_logs:/var/log/vaultwarden
+      - vaultwarden_nginx:/data/nginx
+    env:
+      TZ: "{{ EKB }}"
+      LOG_FILE: "{{ ALT_LOGS }}"
+    networks:
+      - name: nginx
+
+- name: CP Conf files for Vaultwarden
+  shell: cp "{{ alt_src_folder }}/"*.conf "{{ conf_dest_folder }}"
+
+- name: CP Conf-stream files for Vaultwarden
+  shell: cp "{{ alt_src_folder }}/stream/"* "{{ stream_dest_folder }}"
