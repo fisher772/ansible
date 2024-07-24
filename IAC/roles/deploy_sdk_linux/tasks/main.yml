@@ -95,7 +95,7 @@
   pip:
     name: "{{ py_modules }}"
     state: latest
-    extra_args: "--break-system-packages"
+    #extra_args: "--break-system-packages"
 
 - name: Execute cmd updatedb
   shell: updatedb
