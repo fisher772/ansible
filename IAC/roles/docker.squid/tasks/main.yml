@@ -1,0 +1,92 @@
+---
+# tasks file for docker.squid
+- name: Ping test
+  ping:
+
+- name: Start Docker service
+  service:
+    name: docker
+    state: started
+
+- name: Check Squid
+  shell: docker ps -a | grep -q "squid"
+  register: check_result
+  ignore_errors: true
+
+- block:
+    - name: Stop container
+      ansible.builtin.docker_container:
+        name: squid
+        state: stopped
+
+    - name: Delete container
+      ansible.builtin.docker_container:
+        name: squid
+        state: absent
+
+    - name: Clear all unused Docker volumes
+      ansible.builtin.docker_volume:
+        prune: true
+
+    - name: Delete image
+      ansible.builtin.docker_image:
+        name: fisher772/squid
+        state: absent
+  when: check_result == 0
+
+- name: Create necessary volume cache for Squid
+  ansible.builtin.docker_volume:
+    name: squid_cache
+    state: present
+  register: squid_cache
+
+- name: Create necessary volume logs for Squid
+  ansible.builtin.docker_volume:
+    name: squid_logs
+    state: present
+  register: squid_logs
+
+- name: Create necessary volume data for Squid
+  ansible.builtin.docker_volume:
+    name: squid_data
+    state: present
+  register: squid_data
+
+- name: Create necessary volume nginx-conf for Squid
+  ansible.builtin.docker_volume:
+    name: squid_nginx
+    state: present
+  register: squid_nginx
+
+- name: Ensure network exists
+  ansible.builtin.docker_network:
+    name: squid
+    state: present
+
+- name: Run Squid container
+  ansible.builtin.docker_container:
+    name: squid
+    image: fisher772/squid
+    restart_policy: always
+    hostname: squid
+    #published_ports:
+      #- "3128:3128"
+    volumes:
+      - cache:/var/spool/squid
+      - logs:/var/log
+      - data:/etc/squid
+      - nginx:/data/nginx
+    env:
+      TZ: "{{ EKB }}"
+      LE_FQDN: "{{ FQDN }}"
+      SERVER_ALIAS: "{{ ALIAS }}"
+      #TRUSTED_IP: "{{ T_IP }}"
+    networks:
+      - name: nginx
+      - name: squid
+
+- name: CP Conf files for Squid
+  shell: cp "{{ alt_src_folder }}/"*.conf "{{ conf_dest_folder }}"
+
+- name: CP Conf-stream files for Squid
+  shell: cp "{{ alt_src_folder }}/stream/"* "{{ stream_dest_folder }}"

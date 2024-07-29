@@ -28,9 +28,14 @@
       ansible.builtin.docker_volume:
         prune: true
 
-    - name: Delete image
+    - name: Delete basic image 
       ansible.builtin.docker_image:
         name: vaultwarden/server
+        state: absent
+
+    - name: Delete image
+      ansible.builtin.docker_image:
+        name: fisher772/vaultwarden
         state: absent
   when: check_result == 0
 

@@ -1,0 +1,5 @@
+---
+# vars file for docker.squid
+EKB:            "Asia/Yekaterinburg"
+FQDN:           "squid.fisherdevops.tech"
+ALIAS:          "squid"
