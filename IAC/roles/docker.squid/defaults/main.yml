@@ -1,0 +1,7 @@
+---
+# defaults file for docker.squid
+MYHOSTS:          "p1-cloud"
+
+alt_src_folder:              "/var/lib/docker/volumes/squid_nginx/_data"
+conf_dest_folder:            "/var/lib/docker/volumes/nginx_conf/_data/conf.d-le"
+stream_dest_folder:          "/var/lib/docker/volumes/nginx_conf/_data/stream.d-le"

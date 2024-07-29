@@ -30,7 +30,7 @@
 
     - name: Delete image
       ansible.builtin.docker_image:
-        name: fisher/vpn-strongswan
+        name: fisher772/vpn-strongswan
         state: absent
   when: check_result == 0
 

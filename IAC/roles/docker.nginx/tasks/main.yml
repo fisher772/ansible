@@ -35,7 +35,7 @@
 
     - name: Delete image
       ansible.builtin.docker_image:
-        name: fisher/nginx-le
+        name: fisher772/nginx-le
         state: absent
   when: check_result == 0
 
@@ -86,10 +86,8 @@
       TZ: "{{ EKB }}"
       LETSENCRYPT: "{{ STATUS }}"
       LE_EMAIL: "{{ EMAIL }}"
-      LE_FQDN: "{{ FQDN }}"
       LE_CERT_CHAIN: "{{ CERT_CHAIN }}"
       LE_CERT_FQDN: "{{ CERT_FQDN }}"
-      SERVER_ALIAS: "{{ ALIAS }}"
       VPN_ADDRESSES: "{{ SEC_IP }}"
       VPN_SEC: "{{ SEC_STATUS }}"
     networks:

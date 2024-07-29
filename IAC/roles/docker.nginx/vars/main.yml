@@ -7,18 +7,4 @@ SEC_STATUS:     "true"
 #EMAIL:          ""
 CERT_FQDN:      "vaultwarden.fisherdevops.tech vpn.fisherdevops.tech"
 CERT_CHAIN:     "vaultwarden.fisherdevops.tech,vpn.fisherdevops.tech"
-FQDN:           "vaultwarden.fisherdevops.tech"
-ALIAS:          "vaultwarden"
 
-packages:
-  - mc
-  - lsof
-  - htop
-  - vim
-  - python3
-  - curl
-  - wget
-  - telnet
-  - mlocate
-  - git
-  - make
