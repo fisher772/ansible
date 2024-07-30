@@ -89,4 +89,4 @@
   shell: cp "{{ alt_src_folder }}/"*.conf "{{ conf_dest_folder }}"
 
 - name: CP Conf-stream files for Squid
-  shell: cp "{{ alt_src_folder }}/stream/"* "{{ stream_dest_folder }}"
+  shell: cp "{{ alt_src_folder }}/stream/"*.conf "{{ stream_dest_folder }}"

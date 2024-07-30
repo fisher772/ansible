@@ -53,7 +53,7 @@
       shell: mv "{{ src_folder }}/"*.conf "{{ conf_dest_folder }}"
 
     - name: MV Conf-stream files for Vaultwarden
-      shell: mv "{{ src_folder }}/stream/"* "{{ stream_dest_folder }}"
+      shell: mv "{{ src_folder }}/stream/"*.conf "{{ stream_dest_folder }}"
 
     - name: Create necessary volume vaultwarden_data for Vaultwarden
       ansible.builtin.docker_volume:

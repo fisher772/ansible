@@ -7,4 +7,3 @@ SEC_STATUS:     "true"
 #EMAIL:          ""
 CERT_FQDN:      "vaultwarden.fisherdevops.tech vpn.fisherdevops.tech"
 CERT_CHAIN:     "vaultwarden.fisherdevops.tech,vpn.fisherdevops.tech"
-
