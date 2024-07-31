@@ -12,7 +12,7 @@
     state: present
   register: vaultwarden_logs
 
-- name: Create necessary volume vaultwarden_nginx for Vaultwarden
+- name: Create necessary volume vaultwarden_nginx conf for Vaultwarden
   ansible.builtin.docker_volume:
     name: vaultwarden_nginx
     state: present
@@ -32,6 +32,9 @@
     env:
       TZ: "{{ EKB }}"
       LOG_FILE: "{{ ALT_LOGS }}"
+      LE_FQDN: ${FQDN}
+      COUNTAINER_ALIAS: "{{C_ALIAS}}"
+      SERVER_ALIAS: "{{S_ALIAS}}"
     networks:
       - name: nginx
 

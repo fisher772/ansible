@@ -52,12 +52,6 @@
     state: present
   register: squid_data
 
-- name: Create necessary volume nginx-conf for Squid
-  ansible.builtin.docker_volume:
-    name: squid_nginx
-    state: present
-  register: squid_nginx
-
 - name: Ensure network exists
   ansible.builtin.docker_network:
     name: squid
@@ -69,24 +63,16 @@
     image: fisher772/squid
     restart_policy: always
     hostname: squid
-    #published_ports:
-      #- "3128:3128"
+    published_ports:
+      - "8888:8888"
     volumes:
       - cache:/var/spool/squid
       - logs:/var/log
       - data:/etc/squid
-      - nginx:/data/nginx
     env:
       TZ: "{{ EKB }}"
-      LE_FQDN: "{{ FQDN }}"
-      SERVER_ALIAS: "{{ ALIAS }}"
+      HTTP_PORT: "{{PORT}}"
       #TRUSTED_IP: "{{ T_IP }}"
     networks:
       - name: nginx
       - name: squid
-
-- name: CP Conf files for Squid
-  shell: cp "{{ alt_src_folder }}/"*.conf "{{ conf_dest_folder }}"
-
-- name: CP Conf-stream files for Squid
-  shell: cp "{{ alt_src_folder }}/stream/"*.conf "{{ stream_dest_folder }}"
