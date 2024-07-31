@@ -1,6 +1,9 @@
 ---
 # vars file for docker.vaultwarden
 EKB:             "Asia/Yekaterinburg"
+FQDN:            "vaultwarden.fisherdevops.tech"
+C_ALIAS:         "vaultwarden-default"
+S_ALIAS:         "vaultwarden"
 
 LOGS:            "/data/vaultwarden.log"
 ALT_LOGS:        "/var/log/vaultwarden/vaultwarden.log"
