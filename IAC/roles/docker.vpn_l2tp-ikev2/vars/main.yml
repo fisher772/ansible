@@ -1,6 +1,6 @@
 ---
 # vars file for docker.vpn_l2tp-ikev2
-VPN_ROUTE_RANGE:      "10.1.1.2\/24"
+VPN_ROUTE_RANGE:      "10.2.1.0\/24"
 VPN_DOMAIN:           "vpn.fisherdevops.tech"
 VPN_CERT_C:           "COM"
 VPN_CERT_O:           "VPN FISHERDEVOPS"
@@ -8,7 +8,7 @@ VPN_CERT_CN:          "VPN FISHERDEVOPS CA"
 
 CERT_STATUS:          "true"
 
-IPTAB_ROUTE_RANGE:    "10.1.1.0/24"
+IPTAB_ROUTE_RANGE:    "10.1.1.0/24,10.2.1.0/24"
 
 EKB:                  "Asia/Yekaterinburg"
 STATUS:               "true"
