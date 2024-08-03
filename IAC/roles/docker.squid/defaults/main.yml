@@ -1,4 +1,3 @@
 ---
 # defaults file for docker.squid
 MYHOSTS:                     "p1-cloud"
-
