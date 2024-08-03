@@ -2,7 +2,7 @@
 # vars file for docker.nginx
 EKB:            "Asia/Yekaterinburg"
 STATUS:         "true"
-SEC_IP:         "10.1.1.0\/24"
+SEC_IP:         "allow 10.1.1.0\/24;,allow 10.2.2.0\/24;"
 SEC_STATUS:     "true"
 #EMAIL:          ""
-FQDN:           "fisherdevops.tech,vaultwarden.fisherdevops.tech,vpn.fisherdevops.tech,squid.fisherdevops.tech"
+FQDN:           "fisherdevops.tech,vaultwarden.fisherdevops.tech,vpn.fisherdevops.tech,squid.fisherdevops.tech,adguard.fisherdevops.tech"
