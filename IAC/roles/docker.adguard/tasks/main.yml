@@ -39,10 +39,10 @@
     name: fisher772/adguard
     source: pull
 
-- name: CP .sh Scripts for Change resolve.conf
+- name: CP .sh Script for Change resolve.conf
   copy:
     src: change_resolve.sh
-    dest: /tmp/adguard
+    dest: /tmp
     mode: "+x"
   notify:
     - Exec Change resolve.conf
@@ -95,10 +95,10 @@
       - adguard_conf:/opt/adguardhome/conf
       - adguard_nginx:/data/nginx
     env:
-      - TZ=${EKB}
-      - LE_FQDN=${FQDN}
-      - COUNTAINER_ALIAS=${C_ALIAS}
-      - SERVER_ALIAS=${S_ALIAS}
+      TZ: "{{EKB}}"
+      LE_FQDN: "{{FQDN}}"
+      COUNTAINER_ALIAS: "{{C_ALIAS}}"
+      SERVER_ALIAS: "{{S_ALIAS}}"
     networks:
       - name: nginx
       - name: adguard
@@ -108,3 +108,8 @@
 
 - name: CP Conf-stream files for Adguard
   shell: cp "{{ src_folder }}/stream/"*.conf "{{ stream_dest_folder }}"
+
+- name: RM .sh Script for Change resolve.conf
+  file:
+    path: /tmp/change_resolve.sh
+    state: absent

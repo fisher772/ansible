@@ -1,5 +1,5 @@
 ---
 # handlers file for docker.adguard
 - name: Exec Change resolve.conf
-  command: bash /tmp/adguard/change_resolve.sh
+  shell: /tmp/change_resolve.sh
   when: sh_status is true
