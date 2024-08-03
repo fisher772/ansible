@@ -18,7 +18,12 @@
     state: present
   register: vaultwarden_nginx
 
-- name: Run Vaultwarden container
+- name: Ensure network exists
+  ansible.builtin.docker_network:
+    name: vaultwarden
+    state: present
+
+- name: Run Alt Vaultwarden container
   ansible.builtin.docker_container:
     name: vaultwarden
     image: fisher772/vaultwarden
@@ -32,11 +37,12 @@
     env:
       TZ: "{{ EKB }}"
       LOG_FILE: "{{ ALT_LOGS }}"
-      LE_FQDN: ${FQDN}
+      LE_FQDN: "{{FQDN}}"
       COUNTAINER_ALIAS: "{{C_ALIAS}}"
       SERVER_ALIAS: "{{S_ALIAS}}"
     networks:
       - name: nginx
+      - name: vaultwarden
 
 - name: CP Conf files for Vaultwarden
   shell: cp "{{ alt_src_folder }}/"*.conf "{{ conf_dest_folder }}"

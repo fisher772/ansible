@@ -73,6 +73,11 @@
         state: present
       register: vaultwarden_nginx
 
+    - name: Ensure network exists
+      ansible.builtin.docker_network:
+        name: vaultwarden
+        state: present
+
     - name: Run Vaultwarden container
       ansible.builtin.docker_container:
         name: vaultwarden
@@ -87,11 +92,12 @@
         env:
           TZ: "{{ EKB }}"
           LOG_FILE: "{{ LOGS }}"
-          LE_FQDN: ${FQDN}
+          LE_FQDN: "{{FQDN}}"
           COUNTAINER_ALIAS: "{{C_ALIAS}}"
           SERVER_ALIAS: "{{S_ALIAS}}"
         networks:
           - name: nginx
+          - name: vaultwarden
 
     - name: RM Git Repo
       file:

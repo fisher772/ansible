@@ -89,9 +89,9 @@
       LE_FQDN: "{{ FQDN }}"
       VPN_ADDRESSES: "{{ SEC_IP }}"
       VPN_SEC: "{{ SEC_STATUS }}"
-      #- SSL_CERT=le-crt.pem
-      #- SSL_KEY=le-key.pem
-      #- SSL_CHAIN_CERT=le-chain-crt.pem
-      #- LE_ADDITIONAL_OPTIONS='--preferred-chain "ISRG Root X1"'
+      #SSL_CERT=le-crt.pem
+      #SSL_KEY=le-key.pem
+      #SSL_CHAIN_CERT=le-chain-crt.pem
+      #LE_ADDITIONAL_OPTIONS='--preferred-chain "ISRG Root X1"'
     networks:
       - name: nginx
