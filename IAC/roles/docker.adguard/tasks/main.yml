@@ -1,0 +1,105 @@
+---
+# tasks file for docker.adguard
+- name: Ping test
+  ping:
+
+- name: Start Docker service
+  service:
+    name: docker
+    state: started
+
+- name: Check Squid
+  shell: docker ps -a | grep -q "adguard"
+  register: check_result
+  ignore_errors: true
+
+- block:
+    - name: Stop container
+      ansible.builtin.docker_container:
+        name: squid
+        state: stopped
+
+    - name: Delete container
+      ansible.builtin.docker_container:
+        name: squid
+        state: absent
+
+    - name: Clear all unused Docker volumes
+      ansible.builtin.docker_volume:
+        prune: true
+
+    - name: Delete image
+      ansible.builtin.docker_image:
+        name: fisher772/adguard
+        state: absent
+  when: check_result == 0
+
+- name: CP .sh Scripts for Change resolve.conf
+  copy:
+    src: change_resolve.sh
+    dest: /tmp/adguard
+    mode: "+x"
+  notify:
+    - Exec Change resolve.conf
+
+- name: Create necessary volume adguard_work for Adguard
+  ansible.builtin.docker_volume:
+    name: adguard_work
+    state: present
+  register: adguard_work
+
+- name: Create necessary volume adguard_conf for Adguard
+  ansible.builtin.docker_volume:
+    name: adguard_conf
+    state: present
+  register: adguard_conf
+
+- name: Create necessary volume adguard_nginx for Adguard
+  ansible.builtin.docker_volume:
+    name: adguard_nginx
+    state: present
+  register: adguard_nginx
+
+- name: Ensure network exists
+  ansible.builtin.docker_network:
+    name: adguard
+    state: present
+
+- name: Run Adguard container
+  ansible.builtin.docker_container:
+    name: adguard
+    image: fisher772/adguard
+    restart_policy: always
+    hostname: adguard
+    published_ports:
+      - 53:53/tcp
+      - 53:53/udp
+      #- 67:67/udp
+      #- 68:68/udp
+      #- 80:80/tcp
+      #- 443:443/tcp
+      #- 443:443/udp
+      #- 3000:3000/tcp
+      #- 784:784/udp 
+      #- 853:853/udp 
+      #- 8853:8853/udp
+      #- 5443:5443/tcp
+      #- 5443:5443/udp
+    volumes:
+      - adguard_work:/opt/adguardhome/work
+      - adguard_conf:/opt/adguardhome/conf
+      - adguard_nginx:/data/nginx
+    env:
+      - TZ=${EKB}
+      - LE_FQDN=${FQDN}
+      - COUNTAINER_ALIAS=${C_ALIAS}
+      - SERVER_ALIAS=${S_ALIAS}
+    networks:
+      - name: nginx
+      - name: adguard
+
+- name: CP Conf files for Adguard
+  shell: cp "{{ src_folder }}/"*.conf "{{ conf_dest_folder }}"
+
+- name: CP Conf-stream files for Adguard
+  shell: cp "{{ src_folder }}/stream/"*.conf "{{ stream_dest_folder }}"
