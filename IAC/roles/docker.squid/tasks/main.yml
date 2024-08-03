@@ -66,9 +66,9 @@
     published_ports:
       - "8888:8888"
     volumes:
-      - cache:/var/spool/squid
-      - logs:/var/log
-      - data:/etc/squid
+      - squid_cache:/var/spool/squid
+      - squid_logs:/var/log
+      - squid_data:/etc/squid
     env:
       TZ: "{{ EKB }}"
       HTTP_PORT: "{{PORT}}"

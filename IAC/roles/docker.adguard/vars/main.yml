@@ -1,0 +1,6 @@
+---
+# vars file for docker.adguard
+EKB:            "Asia/Yekaterinburg"
+FQDN:           "adguard.fisherdevops.tech"
+C_ALIAS:        "adguard-default"
+S_ALIAS:        "adguard"
