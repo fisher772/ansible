@@ -72,6 +72,7 @@
     env:
       TZ: "{{ EKB }}"
       HTTP_PORT: "{{PORT}}"
+      DNS_VALUE: "{{DNS}}"
       #TRUSTED_IP: "{{ T_IP }}"
     networks:
       - name: nginx

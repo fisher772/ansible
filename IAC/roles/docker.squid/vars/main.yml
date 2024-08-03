@@ -3,3 +3,4 @@
 EKB:            "Asia/Yekaterinburg"
 T_IP:           ""
 PORT:           "8888"
+DNS:            "8.8.8.8 8.8.4.4"
