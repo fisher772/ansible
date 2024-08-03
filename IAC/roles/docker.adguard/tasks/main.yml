@@ -34,6 +34,11 @@
         state: absent
   when: check_result == 0
 
+- name: Download image Adguard
+  community.docker.docker_image:
+    name: fisher772/adguard
+    source: pull
+
 - name: CP .sh Scripts for Change resolve.conf
   copy:
     src: change_resolve.sh
