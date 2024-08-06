@@ -95,10 +95,10 @@
       - adguard_conf:/opt/adguardhome/conf
       - adguard_nginx:/data/nginx
     env:
-      TZ: "{{EKB}}"
-      LE_FQDN: "{{FQDN}}"
-      COUNTAINER_ALIAS: "{{C_ALIAS}}"
-      SERVER_ALIAS: "{{S_ALIAS}}"
+      TZ: "{{ EKB }}"
+      LE_FQDN: "{{ FQDN }}"
+      COUNTAINER_ALIAS: "{{ C_ALIAS }}"
+      SERVER_ALIAS: "{{ S_ALIAS }}"
     networks:
       - name: nginx
       - name: adguard

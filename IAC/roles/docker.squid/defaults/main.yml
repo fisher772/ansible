@@ -1,3 +1,6 @@
 ---
 # defaults file for docker.squid
 MYHOSTS:                     "p1-cloud"
+
+src_folder:                  "/var/lib/docker/volumes/nginx_ssl/_data"
+dest_folder:                 "/var/lib/docker/volumes/squid_ssl/_data"
