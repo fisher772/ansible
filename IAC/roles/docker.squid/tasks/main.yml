@@ -52,6 +52,12 @@
     state: present
   register: squid_data
 
+- name: Create necessary volume ssl for Squid
+  ansible.builtin.docker_volume:
+    name: squid_ssl
+    state: present
+  register: squid_ssl
+
 - name: Ensure network exists
   ansible.builtin.docker_network:
     name: squid
@@ -65,10 +71,12 @@
     hostname: squid
     published_ports:
       - "8888:8888"
+      - "8889:8889"
     volumes:
       - squid_cache:/var/spool/squid
       - squid_logs:/var/log
       - squid_data:/etc/squid
+      - squid_ssl:/etc/squid/ssl
     env:
       TZ: "{{ EKB }}"
       HTTP_PORT: "{{ HTTP_PORT }}"
