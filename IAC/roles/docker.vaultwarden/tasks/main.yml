@@ -92,9 +92,9 @@
         env:
           TZ: "{{ EKB }}"
           LOG_FILE: "{{ LOGS }}"
-          LE_FQDN: "{{FQDN}}"
-          COUNTAINER_ALIAS: "{{C_ALIAS}}"
-          SERVER_ALIAS: "{{S_ALIAS}}"
+          LE_FQDN: "{{ FQDN }}"
+          COUNTAINER_ALIAS: "{{ C_ALIAS }}"
+          SERVER_ALIAS: "{{ S_ALIAS }}"
         networks:
           - name: nginx
           - name: vaultwarden

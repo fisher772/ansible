@@ -71,9 +71,16 @@
       - squid_data:/etc/squid
     env:
       TZ: "{{ EKB }}"
-      HTTP_PORT: "{{PORT}}"
-      DNS_VALUE: "{{DNS}}"
+      HTTP_PORT: "{{ HTTP_PORT }}"
+      HTTPS_PORT=: "{{ HTTPS_PORT }}"
+      HTTPS_STATUS=: "{{ HTTPS_STATUS }}"
+      DNS_VALUE: "{{ DNS }}"
+      SSL_CERT=: "{{ SSL_C }}"
+      SSL_KEY=: "{{ SSL_K }}"
       #TRUSTED_IP: "{{ T_IP }}"
     networks:
       - name: nginx
       - name: squid
+
+- name: CP ssl for Squid
+  shell: cp "{{ src_folder }}/"le*.pem "{{ dest_folder }}"
