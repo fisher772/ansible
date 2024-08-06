@@ -80,8 +80,8 @@
     env:
       TZ: "{{ EKB }}"
       HTTP_PORT: "{{ HTTP_PORT }}"
-      HTTPS_PORT=: "{{ HTTPS_PORT }}"
-      HTTPS_STATUS=: "{{ HTTPS_STATUS }}"
+      HTTPS_PORT: "{{ HTTPS_PORT }}"
+      HTTPS_STATUS: "{{ HTTPS_STATUS }}"
       DNS_VALUE: "{{ DNS }}"
       SSL_CERT=: "{{ SSL_C }}"
       SSL_KEY=: "{{ SSL_K }}"
