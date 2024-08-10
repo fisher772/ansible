@@ -38,19 +38,19 @@
   ansible.builtin.docker_volume:
     name: 3xui_db
     state: present
-  register: 3xui_db
+  register: three_xui_db
 
 - name: Create necessary volume 3xui_cert for 3xui
   ansible.builtin.docker_volume:
     name: 3xui_cert
     state: present
-  register: 3xui_cert
+  register: three_xui_cert
 
 - name: Create necessary volume 3xui_nginx for 3xui
   ansible.builtin.docker_volume:
     name: 3xui_nginx
     state: present
-  register: 3xui_nginx
+  register: three_xui_nginx
 
 - name: Ensure network exists
   ansible.builtin.docker_network:
@@ -67,8 +67,8 @@
       - 62222:62222
       - 63333:63333
     volumes:
-      - 3xui_cert:/etc/x-ui/
-      - 3xui_db:/root/cert/
+      - 3xui_db:/etc/x-ui
+      - 3xui_cert:/root/cert
       - 3xui_nginx:/data/nginx
     env:
       XRAY_VMESS_AEAD_FORCED: "false"
