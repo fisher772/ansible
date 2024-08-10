@@ -8,7 +8,7 @@
     name: docker
     state: started
 
-- name: Check Squid
+- name: Check 3xui
   shell: docker ps -a | grep -q "adguard"
   register: check_result
   ignore_errors: true

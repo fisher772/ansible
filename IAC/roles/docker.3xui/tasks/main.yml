@@ -1,0 +1,84 @@
+---
+# tasks file for docker.3xui
+- name: Ping test
+  ping:
+
+- name: Start Docker service
+  service:
+    name: docker
+    state: started
+
+- name: Check 3xui
+  shell: docker ps -a | grep -q "3xui"
+  register: check_result
+  ignore_errors: true
+
+- block:
+    - name: Stop container
+      ansible.builtin.docker_container:
+        name: squid
+        state: stopped
+
+    - name: Delete container
+      ansible.builtin.docker_container:
+        name: squid
+        state: absent
+
+    - name: Clear all unused Docker volumes
+      ansible.builtin.docker_volume:
+        prune: true
+
+    - name: Delete image
+      ansible.builtin.docker_image:
+        name: fisher772/3xui
+        state: absent
+  when: check_result == 0
+
+- name: Create necessary volume 3xui_db for 3xui
+  ansible.builtin.docker_volume:
+    name: 3xui_db
+    state: present
+  register: 3xui_db
+
+- name: Create necessary volume 3xui_cert for 3xui
+  ansible.builtin.docker_volume:
+    name: 3xui_cert
+    state: present
+  register: 3xui_cert
+
+- name: Create necessary volume 3xui_nginx for 3xui
+  ansible.builtin.docker_volume:
+    name: 3xui_nginx
+    state: present
+  register: 3xui_nginx
+
+- name: Ensure network exists
+  ansible.builtin.docker_network:
+    name: 3xui
+    state: present
+
+- name: Run 3xui container
+  ansible.builtin.docker_container:
+    name: 3xui
+    image: fisher772/3xui
+    restart_policy: unless-stopped
+    hostname: 3xui
+    published_ports:
+      - 62222:62222
+      - 63333:63333
+    volumes:
+      - 3xui_cert:/etc/x-ui/
+      - 3xui_db:/root/cert/
+      - 3xui_nginx:/data/nginx
+    env:
+      XRAY_VMESS_AEAD_FORCED: "false"
+      LE_FQDN: "{{ FQDN }}"
+    networks:
+      - name: nginx
+      - name: 3xui
+
+- name: CP Conf files for 3xui
+  shell: cp "{{ src_folder }}/"*.conf "{{ conf_dest_folder }}"
+
+- name: CP Conf-stream files for 3xui
+  shell: cp "{{ src_folder }}/stream/"*.conf "{{ stream_dest_folder }}"
