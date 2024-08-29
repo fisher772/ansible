@@ -3,4 +3,4 @@
 EKB:            "Asia/Yekaterinburg"
 FQDN:           "adguard.fisherdevops.tech"
 C_ALIAS:        "adguard-default"
-S_ALIAS:        "server adguard:3000;,server adguard;"
+S_ALIAS:        "server adguard:443;,server adguard;"
