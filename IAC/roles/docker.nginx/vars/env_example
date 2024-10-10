@@ -1,0 +1,26 @@
+---
+# vars file for docker.nginx
+
+# Create new env file fromat yml: "path/roles/docker.nginx/vars/email.yml"
+EMAIL:          "youremail@example.com"
+
+
+EKB: "YOUR_TIMEZONE"
+
+# This boolean variable is used for the certificate issuing service
+STATUS: "true or false"
+
+# This boolean variable is used to regulate external access to services or service consoles using nginx
+SEC_STATUS: "true or false"
+
+# This variable is used for the certificate issuing service
+EMAIL: "YOUR_EMAIL"
+
+# The variable "FQDNS" can store a subdomains list separated by a "," sign
+# You can use specifying subdomains or wildcard, This sign is being processed entrypoint.sh
+FQDN: "YOUR_HOST_ADDRESS,YOUR_HOST_ADDRESS"
+
+# The variable "SEC_IP" can store a ip-subnet list separated by a "," sign
+# In variable, the escape character "/" is used to correctly specify the subnet mask in the system variable
+# This is used to regulate external access to services or service web consoles using nginx
+SEC_IP: "allow <IP_SUBNET\/<MASK>;,allow <IP_SUBNET\/<MASK>;,allow 0.0.0.0\/24;"

@@ -1,0 +1,9 @@
+---
+- name: Docker Check_ID_bot
+  hosts: "{{ MYHOSTS }}"
+  become: true
+  vars_files:
+    - credentials.yml
+
+  roles:
+    - { role: docker.check-id-bot }

@@ -1,3 +1,5 @@
 ---
 # vars file for docker.3xui
-FQDN:           "3xui.fisherdevops.tech"
+FQDN:       "3xui.fisherdevops.tech"
+C_ALIAS:    "3xui-default"
+S_ALIAS:    "3xui:64444"

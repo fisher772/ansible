@@ -1,0 +1,9 @@
+---
+- name: Deploy Jenkins
+  hosts: "{{ MYHOSTS }}"
+  become: true
+  vars_files:
+    - credentials.yml
+
+  roles:
+    - { role: jenkins, when: ansible_system == 'Linux' }

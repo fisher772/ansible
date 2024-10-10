@@ -16,12 +16,12 @@
 - block:
     - name: Stop container
       ansible.builtin.docker_container:
-        name: squid
+        name: 3xui
         state: stopped
 
     - name: Delete container
       ansible.builtin.docker_container:
-        name: squid
+        name: 3xui
         state: absent
 
     - name: Clear all unused Docker volumes
@@ -40,17 +40,23 @@
     state: present
   register: three_xui_db
 
-- name: Create necessary volume 3xui_cert for 3xui
+- name: Create/map necessary volume nginx_ssl for 3xui
   ansible.builtin.docker_volume:
-    name: 3xui_cert
+    name: nginx_ssl
     state: present
-  register: three_xui_cert
+  register: nginx_ssl
 
-- name: Create necessary volume 3xui_nginx for 3xui
+- name: Create/map necessary volume nginx_conf for 3xui
   ansible.builtin.docker_volume:
-    name: 3xui_nginx
+    name: nginx_conf
     state: present
-  register: three_xui_nginx
+  register: nginx_conf
+
+- name: Create/map necessary volume nginx_stream for 3xui
+  ansible.builtin.docker_volume:
+    name: nginx_stream
+    state: present
+  register: nginx_stream
 
 - name: Ensure network exists
   ansible.builtin.docker_network:
@@ -68,17 +74,14 @@
       - 63333:63333
     volumes:
       - 3xui_db:/etc/x-ui
-      - 3xui_cert:/root/cert
-      - 3xui_nginx:/data/nginx
+      - nginx_ssl:/root/cert
+      - nginx_conf:/data/nginx/conf
+      - nginx_stream:/data/nginx/stream
     env:
       XRAY_VMESS_AEAD_FORCED: "false"
       LE_FQDN: "{{ FQDN }}"
+      CONTAINER_ALIAS: "{{ C_ALIAS }}"
+      SERVER_ALIAS: "{{ S_ALIAS }}"
     networks:
       - name: nginx
       - name: 3xui
-
-- name: CP Conf files for 3xui
-  shell: cp "{{ src_folder }}/"*.conf "{{ conf_dest_folder }}"
-
-- name: CP Conf-stream files for 3xui
-  shell: cp "{{ src_folder }}/stream/"*.conf "{{ stream_dest_folder }}"

@@ -1,0 +1,3 @@
+---
+# defaults file for docker.jenkins
+MYHOSTS:                     "p1-cloud"

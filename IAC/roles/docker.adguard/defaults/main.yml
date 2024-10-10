@@ -3,7 +3,3 @@
 MYHOSTS:                     "p1-cloud"
 
 sh_status:                   false
-
-src_folder:                  "/var/lib/docker/volumes/adguard_nginx/_data"
-conf_dest_folder:            "/var/lib/docker/volumes/nginx_conf/_data/conf.d-le"
-stream_dest_folder:          "/var/lib/docker/volumes/nginx_conf/_data/stream.d-le"

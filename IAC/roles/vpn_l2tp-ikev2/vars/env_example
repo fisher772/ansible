@@ -1,0 +1,35 @@
+---
+# vars file for vpn_l2tp-ikev2
+packages:
+  - coreutils
+  - util-linux
+  - mc
+  - lsof
+  - htop
+  - vim
+  - python3
+  - curl
+  - wget
+  - iptables
+  - iftop
+  - nload
+  - nethogs
+  - dnsutils
+  - iproute2
+  - gawk
+  - tree
+  - nmap
+  - telnet
+  - mlocate
+  - snapd
+  - openssl
+  - strongswan-pki
+  - libcharon-extra-plugins
+  - libcharon-extauth-plugins
+  - libstrongswan-extra-plugins
+  - libtss2-tcti-tabrmd0
+
+services:
+  - strongswan
+  - xl2tpd
+  - fail2ban

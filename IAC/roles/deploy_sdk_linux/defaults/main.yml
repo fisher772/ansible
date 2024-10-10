@@ -1,6 +1,6 @@
 ---
 # defaults file for deploy_sdk_linux
-MYHOSTS:                "p2-cloud"
+MYHOSTS:                "p1-cloud"
 
 docker_mirrors_status:  false
 

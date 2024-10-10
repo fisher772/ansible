@@ -45,11 +45,11 @@
     state: present
   register: nginx_ssl
 
-- name: Create necessary volume conf for Nginx
+- name: Create necessary volume data for Nginx
   ansible.builtin.docker_volume:
-    name: nginx_conf
+    name: nginx_data
     state: present
-  register: nginx_conf
+  register: nginx_data
 
 - name: Create necessary volume nginx-logs for Nginx
   ansible.builtin.docker_volume:
@@ -62,6 +62,18 @@
     name: nginx_le
     state: present
   register: nginx_le
+
+- name: Create necessary volume conf for Nginx
+  ansible.builtin.docker_volume:
+    name: nginx_conf
+    state: present
+  register: nginx_conf
+
+- name: Create necessary volume stream for Nginx
+  ansible.builtin.docker_volume:
+    name: nginx_stream
+    state: present
+  register: nginx_stream
 
 - name: Ensure network exists
   ansible.builtin.docker_network:
@@ -79,9 +91,11 @@
       - "443:443"
     volumes:
       - nginx_ssl:/etc/nginx/ssl
-      - nginx_conf:/etc/nginx
+      - nginx_data:/etc/nginx
       - nginx_logs:/var/log/nginx
       - nginx_le:/var/log/letsencrypt
+      - nginx_conf:/etc/nginx/conf.d-le
+      - nginx_stream:/etc/nginx/stream.d-le
     env:
       TZ: "{{ EKB }}"
       LETSENCRYPT: "{{ STATUS }}"

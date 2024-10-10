@@ -1,0 +1,29 @@
+# The examples are divided into several files indicating the hosts
+
+# Example p1.host-windows.yml
+
+ansible_user:       username
+ansible_port:       port
+ansible_connection: ssh
+ansible_shell_type: cmd
+
+hostname:
+  name: p1-host-windows
+
+# Example p1.host-linux.yml
+
+ansible_user:                "username"
+ansible_port:                port
+ansible_python_interpreter:  "/usr/bin/python3"
+
+hostname:
+  name: p1-host-linux
+
+# Example p2.host-linux.yml
+
+ansible_user:                "username"
+ansible_port:                port
+ansible_python_interpreter:  "/usr/bin/python3"
+
+hostname:
+  name: p2-host-linux

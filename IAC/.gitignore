@@ -1,7 +1,5 @@
-# roles/**/*cred*
-# plyabooks/**/*cred*
+roles/**/*cred*
+roles/**/vars/*.yml
 playbooks/**/*cred*
-#playbooks/vpn_outline/*cred*
-roles/deploy_sdk_linux/vars/git_vars.yml
-roles/docker.nginx/vars/email.yml
-inventory/host_vars/p1-cloud
+inventory/host_vars/*.yml
+inventory/hosts.yml

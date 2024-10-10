@@ -1,0 +1,19 @@
+---
+# vars file for local_dns
+packages:
+  - mc
+  - lsof
+  - htop
+  - vim
+  - python3
+  - curl
+  - wget
+  - telnet
+  - mlocate
+  - dnstop
+
+services_redhat:
+  - bind
+
+services_other:
+  - bind9

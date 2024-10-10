@@ -1,2 +1,134 @@
 ---
 # tasks file for jenkins
+- name: Ping test
+  ping:
+
+#####Block for Debian/Ubuntu#####
+- block:
+    - name: Add Jenkins GPG key
+      apt_key:
+        url: "{{ url_jenkins_gpg_ubuntu }}"
+        state: present
+        validate_certs: true
+
+    - name: Add Jenkins Repository
+      apt_repository:
+        repo: "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] {{ url_jenkins_repo_ubuntu }} binary/"
+        state: present
+        filename: jenkins
+
+    - name: Execute Upgrade unix Packages 'Debian/Ubuntu'
+      apt:
+        upgrade: true
+        update_cache: true
+        state: latest
+
+    - name: Install utils/unix-packages for 'Debian/Ubuntu'
+      apt:
+        name: "{{ ['openjdk-17-jre'] + ['openjdk-21-jre'] + packages }}"
+        state: present
+  when: vm_os_fam == "Debian"
+     or vm_os_fam == "Ubuntu"
+
+#####Block for RedHat#####
+- block:
+    - name: Add a Jenkins Repository
+      yum_repository:
+        name: jenkins
+        description: Jenkins
+        baseurl: "{{ url_jenkins_repo_redhat }}"
+        gpgcheck: true
+        enabled: true
+        gpgkey: "{{ url_jenkins_gpg_redhat }}"
+
+    - name: Execute Update unix Packages 'RedHat'
+      yum:
+        name: '*'
+        state: latest
+        update_cache: true
+
+    - name: Install utils/unix-packages for 'RedHat'
+      yum:
+        name: "{{ ['epel-release'] + ['java-17-openjdk'] + ['java-21-openjdk'] + packages }}"
+        state: present
+
+    - name: Reload systemd daemon
+      systemd:
+        daemon_reload: true
+  when: vm_os_fam == "RedHat"
+
+- name: Add jenkins user to Docker group
+  user:
+    name: "{{ jenkins_user }}"
+    #password: "{{ jenkins_pw }}"
+    generate_ssh_key: true
+    ssh_key_type: ed25519
+    ssh_key_file: .ssh/id_ed25519
+    groups: docker
+  no_log: true
+
+#####Block for configure Git and GitHub#####
+- block:
+    - name: Set Global Configurations for Git
+      git_config:
+        name: "{{ item.name }}"
+        value: "{{ item.value }}"
+        scope: global
+      loop: "{{ git_cfg }}"
+      no_log: true
+      when: git_cfg_status is true
+
+    - name: Read SSH key from file on the remote host
+      slurp:
+        src: "{{ path_key }}"
+      register: ssh_key_content
+
+    - name: Decode SSH key Content
+      set_fact:
+        ssh_key: "{{ ssh_key_content['content'] | b64decode }}"
+
+    - name: Remove User Postfix from SSH Key
+      set_fact:
+        clean_ssh_key: "{{ ssh_key.split(' ', 1)[0] + ' ' + ssh_key.split(' ', 2)[1] }}"
+
+    - name: Check SSH Key to GitHub
+      uri:
+        url: "{{ github_url }}"
+        method: GET
+        body_format: json
+        headers:
+          Authorization: "token {{ github_token }}"
+      register: deployed_keys
+
+    - name: Check if the Key is already in use
+      set_fact:
+        key_exists: false
+
+    - name: Check each Key in the list
+      set_fact:
+        key_exists: true
+      loop: "{{ deployed_keys.json }}"
+      when: clean_ssh_key in item.key
+      no_log: true
+
+    - name: Add SSH Key to GitHub
+      uri:
+        url: "{{ github_url }}"
+        method: POST
+        body_format: json
+        headers:
+          Authorization: "token {{ github_token }}"
+        body:
+          title: "{{ title_key }}"
+          key: "{{ ssh_key }}"
+        status_code: 201
+      no_log: true
+      when: not key_exists
+  when: git_status is true
+
+
+- name: SSH keyscan
+  shell: ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+  become: false
+  become_user: "{{ jenkins_user }}"
+
