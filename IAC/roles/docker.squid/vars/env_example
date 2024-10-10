@@ -1,0 +1,21 @@
+---
+# vars file for docker.squid
+
+EKB:            "YOUR_TIMEZONE"
+
+# This variable is set for targeted access control to specific clients by their IP-addresses in the IPV_V4 format
+# A variable can store a list of values ​​separated by the "," sign
+T_IP:           "TRUSTED_ADDRESS,TRUSTED_ADDRESS_1"
+
+# This variable enables the HTTPS connection protocol.
+HTTPS_STATUS:   "true"
+
+HTTP_PORT:      "YOUR_PORT_HTTP"
+HTTPS_PORT:     "YOUR_PORT_HTTPS"
+
+# DNS FORMAT IP_V4
+DNS:            "YOUR_DNS_SERVICE YOUR_DNS_SERVICE_1 YOUR_DNS_SERVICE_2"
+
+# These variables are for specifying the names of your certificates
+SSL_C:          "le-crt.pem"
+SSL_K:          "le-key.pem"

@@ -52,11 +52,11 @@
     state: present
   register: squid_data
 
-- name: Create necessary volume ssl for Squid
+- name: Create/map necessary volume ssl for Squid
   ansible.builtin.docker_volume:
-    name: squid_ssl
+    name: nginx_ssl
     state: present
-  register: squid_ssl
+  register: nginx_ssl
 
 - name: Ensure network exists
   ansible.builtin.docker_network:
@@ -76,7 +76,7 @@
       - squid_cache:/var/spool/squid
       - squid_logs:/var/log
       - squid_data:/etc/squid
-      - squid_ssl:/etc/squid/ssl
+      - nginx_ssl:/etc/squid/ssl
     env:
       TZ: "{{ EKB }}"
       HTTP_PORT: "{{ HTTP_PORT }}"
@@ -89,6 +89,3 @@
     networks:
       - name: nginx
       - name: squid
-
-- name: CP ssl for Squid
-  shell: cp "{{ src_folder }}/"le*.pem "{{ dest_folder }}"

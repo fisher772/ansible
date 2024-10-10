@@ -1,0 +1,42 @@
+# You can create your inventory file in one of many formats, depending on the inventory plugins you have. The most common formats are INI and YAML. 
+
+# A basic inventory file INI example **/hosts:
+
+mail.example.com
+
+[webservers]
+foo.example.com
+bar.example.com
+
+[dbservers]
+one.example.com
+two.example.com
+three.example.com
+
+
+# A basic inventory file YML/YAML example **/hosts.yml:
+
+all:
+  children:
+    MAIN_SERVER:
+      hosts:
+        main:
+          ansible_host: 192.168.2.10
+    DEVOPS_SERVERS:
+      hosts:
+        devops:
+          ansible_host: 192.168.3.10
+    DNS_SERVERS:
+      hosts:
+        dns:
+          ansible_host: 192.168.1.10
+    TEST_SERVERS:
+      hosts:
+        test:
+          ansible_host: 192.168.4.10
+    CLOUD_SERVERS:
+      hosts:
+        p1-cloud:
+          ansible_host: 77.168.1.10
+        p2-cloud:
+          ansible_host: 77.168.2.10

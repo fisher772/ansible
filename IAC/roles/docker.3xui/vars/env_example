@@ -1,0 +1,6 @@
+---
+# vars file for docker.3xui
+
+FQDN:       "YOUR_HOST_ADDRESS"
+C_ALIAS:    "alias-zone-upstream"
+S_ALIAS:    "<hostname>:<port>"

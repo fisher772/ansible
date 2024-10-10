@@ -1,5 +1,5 @@
 ---
-# tasks file for docker.adguard
+# tasks file for docker.jenkins
 - name: Ping test
   ping:
 
@@ -8,20 +8,20 @@
     name: docker
     state: started
 
-- name: Check Adguard
-  shell: docker ps -a | grep -q "adguard"
+- name: Check Jenkins
+  shell: docker ps -a | grep -q "jenkins"
   register: check_result
   ignore_errors: true
 
 - block:
     - name: Stop container
       ansible.builtin.docker_container:
-        name: adguard
+        name: jenkins
         state: stopped
 
     - name: Delete container
       ansible.builtin.docker_container:
-        name: adguard
+        name: jenkins
         state: absent
 
     - name: Clear all unused Docker volumes
@@ -30,48 +30,35 @@
 
     - name: Delete image
       ansible.builtin.docker_image:
-        name: fisher772/adguard
+        name: fisher772/jenkins
         state: absent
   when: check_result == 0
 
-- name: Download image Adguard
-  community.docker.docker_image:
-    name: fisher772/adguard
-    source: pull
-
-- name: CP .sh Script for Change resolve.conf
-  copy:
-    src: change_resolve.sh
-    dest: /tmp
-    mode: "+x"
-  notify:
-    - Exec Change resolve.conf
-
-- name: Create necessary volume adguard_work for Adguard
+- name: Create necessary volume adguard_work for Jenkins
   ansible.builtin.docker_volume:
     name: adguard_work
     state: present
   register: adguard_work
 
-- name: Create necessary volume adguard_conf for Adguard
+- name: Create necessary volume adguard_conf for Jenkins
   ansible.builtin.docker_volume:
     name: adguard_conf
     state: present
   register: adguard_conf
 
-- name: Create/map necessary volume nginx_ssl for Adguard
+- name: Create/map necessary volume nginx_ssl for Jenkins
   ansible.builtin.docker_volume:
     name: nginx_ssl
     state: present
   register: nginx_ssl
 
-- name: Create/map necessary volume nginx_conf for Adguard
+- name: Create/map necessary volume nginx_conf for Jenkins
   ansible.builtin.docker_volume:
     name: nginx_conf
     state: present
   register: nginx_conf
 
-- name: Create/map necessary volume nginx_stream for Adguard
+- name: Create/map necessary volume nginx_stream for Jenkins
   ansible.builtin.docker_volume:
     name: nginx_stream
     state: present
@@ -79,32 +66,17 @@
 
 - name: Ensure network exists
   ansible.builtin.docker_network:
-    name: adguard
+    name: jenkins
     state: present
 
-- name: Run Adguard container
+- name: Run Jenkins container
   ansible.builtin.docker_container:
-    name: adguard
-    image: fisher772/adguard
-    restart_policy: always
-    hostname: adguard
-    published_ports:
-      - 53:53/tcp
-      - 53:53/udp
-      #- 67:67/udp
-      #- 68:68/udp
-      #- 80:80/tcp
-      #- 443:443/tcp
-      #- 443:443/udp
-      #- 3000:3000/tcp
-      #- 784:784/udp 
-      #- 853:853/udp 
-      #- 8853:8853/udp
-      #- 5443:5443/tcp
-      #- 5443:5443/udp
+    name: jenkins
+    image: fisher772/jenkins
+    restart_policy: unless-stopped
+    hostname: jenkins
     volumes:
-      - adguard_work:/opt/adguardhome/work
-      - adguard_conf:/opt/adguardhome/conf
+      - jenkins_home:/var/jenkins_home
       - nginx_ssl:/data/nginx
       - nginx_conf:/data/nginx/conf
       - nginx_stream:/data/nginx/stream
@@ -115,9 +87,4 @@
       SERVER_ALIAS: "{{ S_ALIAS }}"
     networks:
       - name: nginx
-      - name: adguard
-
-- name: RM .sh Script for Change resolve.conf
-  file:
-    path: /tmp/change_resolve.sh
-    state: absent
+      - name: jenkins

@@ -3,7 +3,6 @@
 MYHOSTS:                     "p1-cloud"
 
 src_folder:                  "/tmp/git_remote_repo/vaultwarden/settings"
-alt_src_folder:              "/var/lib/docker/volumes/vaultwarden_nginx/_data"
 conf_dest_folder:            "/var/lib/docker/volumes/nginx_conf/_data/conf.d-le"
 stream_dest_folder:          "/var/lib/docker/volumes/nginx_conf/_data/stream.d-le"
 

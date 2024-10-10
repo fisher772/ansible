@@ -1,0 +1,59 @@
+---
+# tasks file for docker.check-id-bot
+- name: Ping test
+  ping:
+
+- name: Start Docker service
+  service:
+    name: docker
+    state: started
+
+- name: Check Checker
+  shell: docker ps -a | grep -q "check_id"
+  register: check_result
+  ignore_errors: true
+
+- block:
+    - name: Stop container
+      ansible.builtin.docker_container:
+        name: check_id
+        state: stopped
+
+    - name: Delete container
+      ansible.builtin.docker_container:
+        name: check_id
+        state: absent
+
+    - name: Clear all unused Docker volumes
+      ansible.builtin.docker_volume:
+        prune: true
+
+    - name: Delete image
+      ansible.builtin.docker_image:
+        name: fisher772/check_id_bot
+        state: absent
+  when: check_result == 0
+
+- name: Create necessary volume check_id_bot for Checker
+  ansible.builtin.docker_volume:
+    name: check_id_bot
+    state: present
+  register: check_id_bot
+
+- name: Ensure network exists
+  ansible.builtin.docker_network:
+    name: checker
+    state: present
+
+- name: Run Checker container
+  ansible.builtin.docker_container:
+    name: check_id
+    image: fisher772/check_id_bot
+    restart_policy: unless-stopped
+    hostname: check_id
+    volumes:
+      - jenkins_home:/var/jenkins_home
+    env:
+      TZ: "{{ EKB }}"
+    networks:
+      - name: checker

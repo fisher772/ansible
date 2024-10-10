@@ -1,9 +1,6 @@
 ---
 # vars file for jenkins
-<<<<<<< HEAD
-=======
 packages:
   - git
   - fontconfig
   - jenkins
->>>>>>> devops

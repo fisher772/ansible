@@ -1,0 +1,9 @@
+---
+# vars file for docker.adguard
+
+EKB:        "YOUR_TIMEZONE"
+FQDN:       "YOUR_HOST_ADDRESS"
+C_ALIAS:    "alias-zone-upstream"
+
+# The variable "S_ALIAS" can store a list separated by a "," sign. This sign is being processed entrypoint.sh
+S_ALIAS:    "server <hostname>:<port>;,server <hostname>;"

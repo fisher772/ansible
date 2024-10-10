@@ -67,11 +67,23 @@
         state: present
       register: vaultwarden_logs
 
-    - name: Create necessary volume vaultwarden_nginx conf for Vaultwarden
+    - name: Create/map necessary volume nginx_ssl for Vaultwarden
       ansible.builtin.docker_volume:
-        name: vaultwarden_nginx
+        name: nginx_ssl
         state: present
-      register: vaultwarden_nginx
+      register: nginx_ssl
+
+    - name: Create/map necessary volume nginx_conf for Vaultwarden
+      ansible.builtin.docker_volume:
+        name: nginx_conf
+        state: present
+      register: nginx_conf
+
+    - name: Create/map necessary volume nginx_stream for Vaultwarden
+      ansible.builtin.docker_volume:
+        name: nginx_stream
+        state: present
+      register: nginx_stream
 
     - name: Ensure network exists
       ansible.builtin.docker_network:
@@ -88,7 +100,9 @@
         volumes:
           - vaultwarden_data:/data/
           - vaultwarden_logs:/var/log/vaultwarden
-          - nginx:/data/nginx
+          - nginx_ssl:/data/nginx
+          - nginx_conf:/data/nginx/conf
+          - nginx_stream:/data/nginx/stream
         env:
           TZ: "{{ EKB }}"
           LOG_FILE: "{{ LOGS }}"

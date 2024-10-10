@@ -1,0 +1,7 @@
+---
+# vars file for docker.vaultwarden
+
+EKB:      "YOUR_TIMEZONE"
+FQDN:     "YOUR_HOST_ADDRESS"
+C_ALIAS:  "alias-zone-upstream"
+S_ALIAS:  "<hostname>:<port>"

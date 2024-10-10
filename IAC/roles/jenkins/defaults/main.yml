@@ -1,2 +1,21 @@
 ---
 # defaults file for jenkins
+MYHOSTS:                "p1-cloud"
+
+vm_os_fam:              "{{ ansible_facts['os_family'] }}"
+vm_os_distrib:          "{{ ansible_facts['distribution'] }}"
+vm_os_mj_ver:           "{{ ansible_facts['distribution_major_version'] }}"
+vm_os_arch:             "{{ ansible_facts['architecture'] }}"
+vm_os_release:          "{{ ansible_facts['distribution_release'] }}"
+
+git_status:             false
+git_cfg_status:         false
+github_url:             "https://api.github.com/user/keys"
+path_key:               "/home/jenkins/.ssh/id_ed25519.pub"
+title_key:              "Jenkins"
+
+url_jenkins_gpg_redhat:  https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+url_jenkins_gpg_ubuntu:  https://pkg.jenkins.io/debian/jenkins.io-2023.key
+
+url_jenkins_repo_redhat: https://pkg.jenkins.io/redhat-stable/jenkins.repo
+url_jenkins_repo_ubuntu: https://pkg.jenkins.io/debian
