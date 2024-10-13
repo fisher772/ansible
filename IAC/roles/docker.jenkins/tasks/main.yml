@@ -52,17 +52,11 @@
     state: present
   register: nginx_ssl
 
-- name: Create/map necessary volume nginx_conf for Jenkins
+- name: Create/map necessary volume jenkins_nginx_conf for Jenkins
   ansible.builtin.docker_volume:
-    name: nginx_conf
+    name: jenkins_nginx_conf
     state: present
-  register: nginx_conf
-
-- name: Create/map necessary volume nginx_stream for Jenkins
-  ansible.builtin.docker_volume:
-    name: nginx_stream
-    state: present
-  register: nginx_stream
+  register: jenkins_nginx_conf
 
 - name: Ensure network exists
   ansible.builtin.docker_network:
@@ -77,9 +71,8 @@
     hostname: jenkins
     volumes:
       - jenkins_home:/var/jenkins_home
-      - nginx_ssl:/data/nginx
-      - nginx_conf:/data/nginx/conf
-      - nginx_stream:/data/nginx/stream
+      - nginx_ssl:/data/nginx/ssl
+      - jenkins_nginx_conf:/data/nginx
     env:
       TZ: "{{ EKB }}"
       LE_FQDN: "{{ FQDN }}"
@@ -88,3 +81,9 @@
     networks:
       - name: nginx
       - name: jenkins
+
+- name: CP Conf files for Jenkins
+  shell: cp "{{ src_folder }}/conf/"*.conf "{{ conf_dest_folder }}/conf.d-le"
+
+- name: CP Conf-stream files for Jenkins
+  shell: cp "{{ src_folder }}/stream/"*.conf "{{ conf_dest_folder }}/conf.d-le"

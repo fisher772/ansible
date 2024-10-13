@@ -65,17 +65,11 @@
     state: present
   register: nginx_ssl
 
-- name: Create/map necessary volume nginx_conf for Adguard
+- name: Create/map necessary volume adguard_nginx_conf for Adguard
   ansible.builtin.docker_volume:
-    name: nginx_conf
+    name: adguard_nginx_conf
     state: present
-  register: nginx_conf
-
-- name: Create/map necessary volume nginx_stream for Adguard
-  ansible.builtin.docker_volume:
-    name: nginx_stream
-    state: present
-  register: nginx_stream
+  register: adguard_nginx_conf
 
 - name: Ensure network exists
   ansible.builtin.docker_network:
@@ -105,9 +99,8 @@
     volumes:
       - adguard_work:/opt/adguardhome/work
       - adguard_conf:/opt/adguardhome/conf
-      - nginx_ssl:/data/nginx
-      - nginx_conf:/data/nginx/conf
-      - nginx_stream:/data/nginx/stream
+      - nginx_ssl:/data/nginx/ssl
+      - adguard_nginx_conf:/data/nginx
     env:
       TZ: "{{ EKB }}"
       LE_FQDN: "{{ FQDN }}"
@@ -116,6 +109,12 @@
     networks:
       - name: nginx
       - name: adguard
+
+- name: CP Conf files for Adguard
+  shell: cp "{{ src_folder }}/conf/"*.conf "{{ conf_dest_folder }}/conf.d-le"
+
+- name: CP Conf-stream files for Adguard
+  shell: cp "{{ src_folder }}/stream/"*.conf "{{ conf_dest_folder }}/conf.d-le"
 
 - name: RM .sh Script for Change resolve.conf
   file:

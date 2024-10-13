@@ -1,3 +1,6 @@
 ---
 # defaults file for docker.3xui
 MYHOSTS:                     "p1-cloud"
+
+src_folder:                  "/var/lib/docker/volumes/3xui_nginx_conf/_data"
+conf_dest_folder:            "/var/lib/docker/volumes/nginx_conf/_data"

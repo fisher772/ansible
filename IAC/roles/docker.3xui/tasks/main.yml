@@ -46,17 +46,11 @@
     state: present
   register: nginx_ssl
 
-- name: Create/map necessary volume nginx_conf for 3xui
+- name: Create/map necessary volume 3xui_nginx_conf for 3xui
   ansible.builtin.docker_volume:
-    name: nginx_conf
+    name: 3xui_nginx_conf
     state: present
-  register: nginx_conf
-
-- name: Create/map necessary volume nginx_stream for 3xui
-  ansible.builtin.docker_volume:
-    name: nginx_stream
-    state: present
-  register: nginx_stream
+  register: 3xui_nginx_conf
 
 - name: Ensure network exists
   ansible.builtin.docker_network:
@@ -75,8 +69,7 @@
     volumes:
       - 3xui_db:/etc/x-ui
       - nginx_ssl:/root/cert
-      - nginx_conf:/data/nginx/conf
-      - nginx_stream:/data/nginx/stream
+      - 3xui_nginx_conf:/data/nginx
     env:
       XRAY_VMESS_AEAD_FORCED: "false"
       LE_FQDN: "{{ FQDN }}"
@@ -85,3 +78,9 @@
     networks:
       - name: nginx
       - name: 3xui
+
+- name: CP Conf files for 3xui
+  shell: cp "{{ src_folder }}/conf/"*.conf "{{ conf_dest_folder }}/conf.d-le"
+
+- name: CP Conf-stream files for 3xui
+  shell: cp "{{ src_folder }}/stream/"*.conf "{{ conf_dest_folder }}/conf.d-le"

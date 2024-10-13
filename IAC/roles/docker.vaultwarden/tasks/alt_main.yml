@@ -18,17 +18,11 @@
     state: present
   register: nginx_ssl
 
-- name: Create/map necessary volume nginx_conf for Vaultwarden
+- name: Create/map necessary volume vaultwarden_nginx_conf for Vaultwarden
   ansible.builtin.docker_volume:
-    name: nginx_conf
+    name: vaultwarden_nginx_conf
     state: present
-  register: nginx_conf
-
-- name: Create/map necessary volume nginx_stream for Vaultwarden
-  ansible.builtin.docker_volume:
-    name: nginx_stream
-    state: present
-  register: nginx_stream
+  register: vaultwarden_nginx_conf
 
 - name: Ensure network exists
   ansible.builtin.docker_network:
@@ -45,8 +39,8 @@
     volumes:
       - vaultwarden_data:/data/
       - vaultwarden_logs:/var/log/vaultwarden
-      - nginx_ssl:/data/nginx
-      - nginx_conf:/data/nginx/conf
+      - nginx_ssl:/data/nginx/ssl
+      - vaultwarden_nginx_conf:/data/nginx
       - nginx_stream:/data/nginx/stream
     env:
       TZ: "{{ EKB }}"
@@ -57,3 +51,9 @@
     networks:
       - name: nginx
       - name: vaultwarden
+
+- name: CP Conf files for Jenkins
+  shell: cp "{{ alt_src_folder }}/conf/"*.conf "{{ conf_dest_folder }}/conf.d-le"
+
+- name: CP Conf-stream files for Jenkins
+  shell: cp "{{ alt_src_folder }}/stream/"*.conf "{{ conf_dest_folder }}/conf.d-le"
