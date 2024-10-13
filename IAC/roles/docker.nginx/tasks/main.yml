@@ -63,18 +63,6 @@
     state: present
   register: nginx_le
 
-- name: Create necessary volume conf for Nginx
-  ansible.builtin.docker_volume:
-    name: nginx_conf
-    state: present
-  register: nginx_conf
-
-- name: Create necessary volume stream for Nginx
-  ansible.builtin.docker_volume:
-    name: nginx_stream
-    state: present
-  register: nginx_stream
-
 - name: Ensure network exists
   ansible.builtin.docker_network:
     name: nginx
@@ -94,8 +82,6 @@
       - nginx_data:/etc/nginx
       - nginx_logs:/var/log/nginx
       - nginx_le:/var/log/letsencrypt
-      - nginx_conf:/etc/nginx/conf.d-le
-      - nginx_stream:/etc/nginx/stream.d-le
     env:
       TZ: "{{ EKB }}"
       LETSENCRYPT: "{{ STATUS }}"
