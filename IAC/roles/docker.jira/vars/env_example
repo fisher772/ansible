@@ -1,0 +1,13 @@
+---
+# vars file for docker.jira
+
+EKB:              "YOUR_TIMEZONE"
+URL_CONTEXTPATH:  "/CONTEXT"
+DB_TYPE:          "TYPE"
+DB_DRIVER:        "DRIVER"
+DB_URL:           "URL_CONNECTOR"
+DB_USER:          "USERNAME"
+DB_PASSWORD:      "PASSWORD"
+FQDN:             "YOUR_HOST_ADDRESS"
+C_ALIAS:          "alias-zone-upstream"
+S_ALIAS:          "<hostname>:<port>"

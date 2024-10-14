@@ -1,0 +1,8 @@
+---
+# vars file for docker.nexus
+
+EKB:              "YOUR_TIMEZONE"
+URL_CONTEXTPATH:  "/CONTEXT"
+FQDN:             "YOUR_HOST_ADDRESS"
+C_ALIAS:          "alias-zone-upstream"
+S_ALIAS:          "<hostname>:<port>"

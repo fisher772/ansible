@@ -1,0 +1,90 @@
+---
+# tasks file for docker.bitbucket
+- name: Ping test
+  ping:
+
+- name: Start Docker service
+  service:
+    name: docker
+    state: started
+
+- name: Check Bitbucket
+  shell: docker ps -a | grep -q "bitbucket"
+  register: check_result
+  ignore_errors: true
+
+- block:
+    - name: Stop container
+      ansible.builtin.docker_container:
+        name: bitbucket
+        state: stopped
+
+    - name: Delete container
+      ansible.builtin.docker_container:
+        name: bitbucket
+        state: absent
+
+    - name: Clear all unused Docker volumes
+      ansible.builtin.docker_volume:
+        prune: true
+
+    - name: Delete image
+      ansible.builtin.docker_image:
+        name: fisher772/bitbucket
+        state: absent
+  when: check_result == 0
+
+- name: Create necessary volume bitbucket_home for Bitbucket
+  ansible.builtin.docker_volume:
+    name: bitbucket_home
+    state: present
+  register: bitbucket_home
+
+- name: Create necessary volume bitbucket_install for Bitbucket
+  ansible.builtin.docker_volume:
+    name: bitbucket_install
+    state: present
+  register: bitbucket_install
+
+- name: Create/map necessary volume bitbucket_nginx_conf for Bitbucket
+  ansible.builtin.docker_volume:
+    name: bitbucket_nginx_conf
+    state: present
+  register: bitbucket_nginx_conf
+
+- name: Ensure network exists
+  ansible.builtin.docker_network:
+    name: bitbucket
+    state: present
+
+- name: Run Bitbucket container
+  ansible.builtin.docker_container:
+    name: bitbucket
+    image: fisher772/bitbucket
+    restart_policy: unless-stopped
+    hostname: bitbucket
+    volumes:
+      - bitbucket_home:/var/atlassian/application-data/bitbucket
+      - bitbucket_install:/opt/atlassian/bitbucket
+      - bitbucket_nginx_conf:/data/nginx
+    env:
+      TZ: ${EKB}
+      ATL_TOMCAT_CONTEXTPATH: "{{ URL_CONTEXTPATH }}"
+      ATL_DB_TYPE: "{{ DB_TYPE }}"
+      ATL_DB_DRIVER: "{{ DB_DRIVER }}"
+      ATL_JDBC_USER: "{{ DB_USER }}"
+      ATL_JDBC_PASSWORD: "{{ DB_PASSWORD }}"
+      ATL_JDBC_URL: "{{ DB_URL }}"
+      LE_FQDN: "{{ FQDN }}"
+      CONTAINER_ALIAS: "{{ C_ALIAS }}"
+      SERVER_ALIAS: "{{ S_ALIAS }}"
+    networks:
+      - name: nginx
+      - name: bitbucket
+      - name: postgres
+
+- name: CP Conf files for Bitbucket
+  shell: cp "{{ src_folder }}/conf/"*.conf "{{ conf_dest_folder }}/conf.d-le"
+
+- name: CP Conf-stream files for Bitbucket
+  shell: cp "{{ src_folder }}/stream/"*.conf "{{ conf_dest_folder }}/conf.d-le"

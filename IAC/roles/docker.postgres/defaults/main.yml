@@ -1,0 +1,3 @@
+---
+# defaults file for docker.postgres
+MYHOSTS:                     "p1-cloud"

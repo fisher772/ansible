@@ -1,0 +1,90 @@
+---
+# tasks file for docker.confluence
+- name: Ping test
+  ping:
+
+- name: Start Docker service
+  service:
+    name: docker
+    state: started
+
+- name: Check Confluence
+  shell: docker ps -a | grep -q "confluence"
+  register: check_result
+  ignore_errors: true
+
+- block:
+    - name: Stop container
+      ansible.builtin.docker_container:
+        name: confluence
+        state: stopped
+
+    - name: Delete container
+      ansible.builtin.docker_container:
+        name: confluence
+        state: absent
+
+    - name: Clear all unused Docker volumes
+      ansible.builtin.docker_volume:
+        prune: true
+
+    - name: Delete image
+      ansible.builtin.docker_image:
+        name: fisher772/confluence
+        state: absent
+  when: check_result == 0
+
+- name: Create necessary volume confluence_home for Confluence
+  ansible.builtin.docker_volume:
+    name: confluence_home
+    state: present
+  register: confluence_home
+
+- name: Create necessary volume confluence_install for Confluence
+  ansible.builtin.docker_volume:
+    name: confluence_install
+    state: present
+  register: confluence_install
+
+- name: Create/map necessary volume confluence_nginx_conf for Confluence
+  ansible.builtin.docker_volume:
+    name: confluence_nginx_conf
+    state: present
+  register: confluence_nginx_conf
+
+- name: Ensure network exists
+  ansible.builtin.docker_network:
+    name: confluence
+    state: present
+
+- name: Run Confluence container
+  ansible.builtin.docker_container:
+    name: confluence
+    image: fisher772/confluence
+    restart_policy: unless-stopped
+    hostname: confluence
+    volumes:
+      - confluence_home:/var/atlassian/application-data/confluence
+      - confluence_install:/opt/atlassian/confluence
+      - confluence_nginx_conf:/data/confluence
+    env:
+      TZ: ${EKB}
+      ATL_TOMCAT_CONTEXTPATH: "{{ URL_CONTEXTPATH }}"
+      ATL_DB_TYPE: "{{ DB_TYPE }}"
+      ATL_DB_DRIVER: "{{ DB_DRIVER }}"
+      ATL_JDBC_USER: "{{ DB_USER }}"
+      ATL_JDBC_PASSWORD: "{{ DB_PASSWORD }}"
+      ATL_JDBC_URL: "{{ DB_URL }}"
+      LE_FQDN: "{{ FQDN }}"
+      CONTAINER_ALIAS: "{{ C_ALIAS }}"
+      SERVER_ALIAS: "{{ S_ALIAS }}"
+    networks:
+      - name: nginx
+      - name: confluence
+      - name: postgres
+
+- name: CP Conf files for Confluence
+  shell: cp "{{ src_folder }}/conf/"*.conf "{{ conf_dest_folder }}/conf.d-le"
+
+- name: CP Conf-stream files for Confluence
+  shell: cp "{{ src_folder }}/stream/"*.conf "{{ conf_dest_folder }}/conf.d-le"
