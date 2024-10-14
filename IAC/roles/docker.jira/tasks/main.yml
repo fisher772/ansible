@@ -1,0 +1,90 @@
+---
+# tasks file for docker.jira
+- name: Ping test
+  ping:
+
+- name: Start Docker service
+  service:
+    name: docker
+    state: started
+
+- name: Check Jira
+  shell: docker ps -a | grep -q "jira"
+  register: check_result
+  ignore_errors: true
+
+- block:
+    - name: Stop container
+      ansible.builtin.docker_container:
+        name: jira
+        state: stopped
+
+    - name: Delete container
+      ansible.builtin.docker_container:
+        name: jira
+        state: absent
+
+    - name: Clear all unused Docker volumes
+      ansible.builtin.docker_volume:
+        prune: true
+
+    - name: Delete image
+      ansible.builtin.docker_image:
+        name: fisher772/jira
+        state: absent
+  when: check_result == 0
+
+- name: Create necessary volume jira_home for Jira
+  ansible.builtin.docker_volume:
+    name: jira_home
+    state: present
+  register: jira_home
+
+- name: Create necessary volume jira_install for Jira
+  ansible.builtin.docker_volume:
+    name: jira_install
+    state: present
+  register: jira_install
+
+- name: Create/map necessary volume jira_nginx_conf for Jira
+  ansible.builtin.docker_volume:
+    name: jira_nginx_conf
+    state: present
+  register: jira_nginx_conf
+
+- name: Ensure network exists
+  ansible.builtin.docker_network:
+    name: jira
+    state: present
+
+- name: Run Jira container
+  ansible.builtin.docker_container:
+    name: jira
+    image: fisher772/jira
+    restart_policy: unless-stopped
+    hostname: jira
+    volumes:
+      - jira_home:/var/atlassian/application-data/jira
+      - jira_install:/opt/atlassian/jira
+      - jira_nginx_conf:/data/nginx
+    env:
+      TZ: ${EKB}
+      ATL_TOMCAT_CONTEXTPATH: "{{ URL_CONTEXTPATH }}"
+      ATL_DB_TYPE: "{{ DB_TYPE }}"
+      ATL_DB_DRIVER: "{{ DB_DRIVER }}"
+      ATL_JDBC_USER: "{{ DB_USER }}"
+      ATL_JDBC_PASSWORD: "{{ DB_PASSWORD }}"
+      ATL_JDBC_URL: "{{ DB_URL }}"
+      LE_FQDN: "{{ FQDN }}"
+      CONTAINER_ALIAS: "{{ C_ALIAS }}"
+      SERVER_ALIAS: "{{ S_ALIAS }}"
+    networks:
+      - name: nginx
+      - name: jira
+      - name: postgres
+
+- name: CP Conf files for Jira
+  shell: cp "{{ src_folder }}/conf/"*.conf "{{ conf_dest_folder }}/conf.d-le"
+
+- name: CP Conf-stream files for Jira
+  shell: cp "{{ src_folder }}/stream/"*.conf "{{ conf_dest_folder }}/conf.d-le"

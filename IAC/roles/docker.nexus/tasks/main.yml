@@ -1,0 +1,77 @@
+---
+# tasks file for docker.nexus
+- name: Ping test
+  ping:
+
+- name: Start Docker service
+  service:
+    name: docker
+    state: started
+
+- name: Check Nexus
+  shell: docker ps -a | grep -q "nexus"
+  register: check_result
+  ignore_errors: true
+
+- block:
+    - name: Stop container
+      ansible.builtin.docker_container:
+        name: nexus
+        state: stopped
+
+    - name: Delete container
+      ansible.builtin.docker_container:
+        name: nexus
+        state: absent
+
+    - name: Clear all unused Docker volumes
+      ansible.builtin.docker_volume:
+        prune: true
+
+    - name: Delete image
+      ansible.builtin.docker_image:
+        name: fisher772/nexus
+        state: absent
+  when: check_result == 0
+
+- name: Create necessary volume nexus_data for Nexus
+  ansible.builtin.docker_volume:
+    name: nexus_data
+    state: present
+  register: nexus_data
+
+- name: Create/map necessary volume nexus_nginx_conf for Jira
+  ansible.builtin.docker_volume:
+    name: nexus_nginx_conf
+    state: present
+  register: nexus_nginx_conf
+
+- name: Ensure network exists
+  ansible.builtin.docker_network:
+    name: nexus
+    state: present
+
+- name: Run Nexus container
+  ansible.builtin.docker_container:
+    name: nexus
+    image: fisher772/nexus
+    restart_policy: unless-stopped
+    hostname: nexus
+    volumes:
+      - nexus_data:/nexus-data
+      - nexus_nginx_conf:/data/nginx
+    env:
+      TZ: "{{ EKB }}"
+      NEXUS_CONTEXT: "{{ URL_CONTEXTPATH }}"
+      LE_FQDN: "{{ FQDN }}"
+      CONTAINER_ALIAS: "{{ C_ALIAS }}"
+      SERVER_ALIAS: "{{ S_ALIAS }}"
+    networks:
+      - name: nginx
+      - name: nexus
+
+- name: CP Conf files for Nexus
+  shell: cp "{{ src_folder }}/conf/"*.conf "{{ conf_dest_folder }}/conf.d-le"
+
+- name: CP Conf-stream files for Nexus
+  shell: cp "{{ src_folder }}/stream/"*.conf "{{ conf_dest_folder }}/conf.d-le"

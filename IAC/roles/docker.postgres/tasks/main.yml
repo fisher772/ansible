@@ -1,0 +1,62 @@
+---
+# tasks file for docker.postgres
+- name: Ping test
+  ping:
+
+- name: Start Docker service
+  service:
+    name: docker
+    state: started
+
+- name: Check Postgres
+  shell: docker ps -a | grep -q "postgres"
+  register: check_result
+  ignore_errors: true
+
+- block:
+    - name: Stop container
+      ansible.builtin.docker_container:
+        name: postgres
+        state: stopped
+
+    - name: Delete container
+      ansible.builtin.docker_container:
+        name: postgres
+        state: absent
+
+    - name: Clear all unused Docker volumes
+      ansible.builtin.docker_volume:
+        prune: true
+
+    - name: Delete image
+      ansible.builtin.docker_image:
+        name: fisher772/postgres
+        state: absent
+  when: check_result == 0
+
+- name: Create necessary volume postgres_data for Postgres
+  ansible.builtin.docker_volume:
+    name: postgres_data
+    state: present
+  register: postgres_data
+
+- name: Ensure network exists
+  ansible.builtin.docker_network:
+    name: postgres
+    state: present
+
+- name: Run Postgres container
+  ansible.builtin.docker_container:
+    name: postgres
+    image: fisher772/postgres
+    restart_policy: unless-stopped
+    hostname: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env:
+      TZ: "{{ EKB }}"
+      POSTGRES_MULTIPLE_DATABASES: "{{ DB_MULTIPLE }}"
+      POSTGRES_USER: "{{ DB_USER }}"
+      POSTGRES_PASSWORD: "{{ DB_PASSWORD }}"
+    networks:
+      - name: postgres
