@@ -1,0 +1,9 @@
+---
+- name: Docker Postgres
+  hosts: "{{ MYHOSTS }}"
+  become: true
+  vars_files:
+    - credentials.yml
+
+  roles:
+    - { role: docker.postgres }
