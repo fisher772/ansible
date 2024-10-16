@@ -1,0 +1,9 @@
+---
+- name: Docker Vault
+  hosts: "{{ MYHOSTS }}"
+  become: true
+  vars_files:
+    - credentials.yml
+
+  roles:
+    - { role: docker.vault }
