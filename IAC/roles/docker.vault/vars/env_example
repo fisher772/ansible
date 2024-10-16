@@ -1,0 +1,10 @@
+---
+# vars file for docker.vault
+
+EKB:              "YOUR_TIMEZONE"
+FQDN:             "YOUR_HOST_ADDRESS"
+C_ALIAS:          "alias-zone-upstream"
+S_ALIAS:          "<hostname>:<port>"
+
+# VAULT_DEV_ROOT_TOKEN_ID: This sets the ID of the initial generated root token to the given value
+TOKEN:            "YOUR_TOKEN"

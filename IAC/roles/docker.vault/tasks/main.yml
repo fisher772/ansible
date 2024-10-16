@@ -1,0 +1,77 @@
+---
+# tasks file for docker.vault
+- name: Ping test
+  ping:
+
+- name: Start Docker service
+  service:
+    name: docker
+    state: started
+
+- name: Check Vault
+  shell: docker ps -a | grep -q "vault"
+  register: check_result
+  ignore_errors: true
+
+- block:
+    - name: Stop container
+      ansible.builtin.docker_container:
+        name: vault
+        state: stopped
+
+    - name: Delete container
+      ansible.builtin.docker_container:
+        name: vault
+        state: absent
+
+    - name: Clear all unused Docker volumes
+      ansible.builtin.docker_volume:
+        prune: true
+
+    - name: Delete image
+      ansible.builtin.docker_image:
+        name: fisher772/vault
+        state: absent
+  when: check_result == 0
+
+- name: Create necessary volume vault_data for Vault
+  ansible.builtin.docker_volume:
+    name: vault_data
+    state: present
+  register: vault_data
+
+- name: Create/map necessary volume vault_nginx_conf for Vault
+  ansible.builtin.docker_volume:
+    name: vault_nginx_conf
+    state: present
+  register: vault_nginx_conf
+
+- name: Ensure network exists
+  ansible.builtin.docker_network:
+    name: vault
+    state: present
+
+- name: Run Vault container
+  ansible.builtin.docker_container:
+    name: vault
+    image: fisher772/vault
+    restart_policy: unless-stopped
+    hostname: vault
+    volumes:
+      - vault_data:/vault
+      - vault_nginx_conf:/data/nginx
+    env:
+      TZ: ${EKB}
+      LE_FQDN: "{{ FQDN }}"
+      CONTAINER_ALIAS: "{{ C_ALIAS }}"
+      SERVER_ALIAS: "{{ S_ALIAS }}"
+      # VAULT_DEV_ROOT_TOKEN_ID: "{{ TOKEN }}"
+    networks:
+      - name: nginx
+      - name: vault
+
+- name: CP Conf files for Vault
+  shell: cp "{{ src_folder }}/conf/"*.conf "{{ conf_dest_folder }}/conf.d-le"
+
+- name: CP Conf-stream files for Vault
+  shell: cp "{{ src_folder }}/stream/"*.conf "{{ conf_dest_folder }}/conf.d-le"
