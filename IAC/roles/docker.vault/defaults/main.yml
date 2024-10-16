@@ -1,0 +1,6 @@
+---
+# defaults file for docker.vault
+MYHOSTS:                     "p1-cloud"
+
+src_folder:                  "/var/lib/docker/volumes/vault_nginx_conf/_data"
+conf_dest_folder:            "/var/lib/docker/volumes/nginx_conf/_data"
