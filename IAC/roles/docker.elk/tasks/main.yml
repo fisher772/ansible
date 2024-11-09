@@ -1,0 +1,53 @@
+---
+# tasks file for docker.elk
+- name: Ping test
+  ping:
+
+- name: Start Docker service
+  service:
+    name: docker
+    state: started
+
+- name: Clone Git Repo
+  git:
+    repo: git@github.com:fisher772/docker_images.git
+    dest: "{{ work_dest }}/docker_images"
+    force: true
+
+- name: Insert vars for .env
+  template:
+    src: env.j2
+    dest: "{{ work_dest }}/docker_images/ELK/.env"
+
+- name: Docker Run ELK
+  shell: docker compose up -d
+  args:
+    chdir: "{{ work_dest }}/docker_images/ELK"
+
+- name: Wait for Elasticsearch to be ready
+  shell: sleep 120
+
+- name: Copy http_ca.crt from Elasticsearch container
+  shell: docker cp elasticsearch:/usr/share/elasticsearch/config/certs/http_ca.crt /tmp/http_ca.crt
+
+- name: Change permissions of http_ca.crt
+  file:
+    path: /tmp/http_ca.crt
+    mode: '0644'
+
+- name: Copy http_ca.crt to Logstash container
+  shell: docker cp /tmp/http_ca.crt logstash:/usr/share/logstash/config/
+
+- name: Remove http_ca.crt from host
+  file:
+    path: /tmp/http_ca.crt
+    state: absent
+
+- name: Restart Logstash container
+  command: docker restart logstash
+
+- name: CP Conf files for ELK
+  shell: cp "{{ src_folder }}/conf/"*.conf "{{ conf_dest_folder }}/conf.d-le"
+
+- name: CP Conf-stream files for ELK
+  shell: cp "{{ src_folder }}/stream/"*.conf "{{ conf_dest_folder }}/conf.d-le"

@@ -1,0 +1,3 @@
+---
+# defaults file for docker.redis
+MYHOSTS:                     "p1-cloud"

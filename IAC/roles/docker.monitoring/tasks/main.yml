@@ -1,0 +1,37 @@
+---
+# tasks file for docker.monitoring
+- name: Ping test
+  ping:
+
+- name: Start Docker service
+  service:
+    name: docker
+    state: started
+
+- name: Clone Git Repo
+  git:
+    repo: git@github.com:fisher772/docker_images.git
+    dest: "{{ work_dest }}/docker_images"
+    force: true
+
+- name: Insert vars for .env
+  template:
+    src: env.j2
+    dest: "{{ work_dest }}/docker_images/monitoring/.env"
+
+- name: Docker Run Monitoring
+  shell: docker compose up -d
+  args:
+    chdir: "{{ work_dest }}/docker_images/monitoring"
+
+- name: CP Conf grafana files for Monitoring
+  shell: cp "{{ src_folder_grafana }}/conf/"*.conf "{{ conf_dest_folder }}/conf.d-le"
+
+- name: CP Conf-stream grafana files for Monitoring
+  shell: cp "{{ src_folder_grafana }}/stream/"*.conf "{{ conf_dest_folder }}/conf.d-le"
+
+- name: CP Conf prometheus files for Monitoring
+  shell: cp "{{ src_folder_prometheus }}/conf/"*.conf "{{ conf_dest_folder }}/conf.d-le"
+
+- name: CP Conf-stream prometheus files for Monitoring
+  shell: cp "{{ src_folder_prometheus }}/stream/"*.conf "{{ conf_dest_folder }}/conf.d-le"
