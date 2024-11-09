@@ -1,87 +1,80 @@
-# Структура для работы с ansible
+# Structure for working with Ansible. IAC
 
-Для удобства используется inventory directory structure.  
-В качестве inventory выступает каталог inventory. Структура каталогов имеет следующий вид:
-```
-├── ansible.cfg.jenkins - конфиг адаптированный под использование ansible через Jenkins job
-├── playbooks - хранилище плейбуков
-├── roles - хранилище ролей
-├── inventory - хранилище inventory
-│   └── jenkins_agent - inventory item, содержит каталоги host_vars/group_vars
-│       ├── group_vars
-│       │   └── jenkins_agent
-│       │       ├── vars - файл с переменными в открытом виде
-│       │       └── vault - файл для хранения секретов
-│       └── hosts - хостфайл, в котором перечислены узлы сети, относящиеся к данному inventory item
+[![GitHub](https://img.shields.io/badge/GitHub-Repo-red%3Flogo%3Dgithub?logo=github&label=GitHub%20Ansible-Repo)](https://github.com/fisher772/ansible)
 
-```
+Ansible is an open source IT automation engine that automates provisioning, configuration management, application deployment, orchestration, and many other IT processes. It is free to use, and the project benefits from the experience and intelligence of its thousands of contributors.
+
+[Ansible reference docs](https://docs.ansible.com)
+
+[Ansible reference docs for Install and Upgrade](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#installing-and-upgrading-ansible)
 
 
-Для запуска плейбука используется команда
-```
-ansible-playbook -i inventory/jenkins_agent playbooks/jenkins_agent.yml
-```
-Возможен вариант подключения к хостам с помощью ssh-ключа (юзер drit в jenkins), либо по логину/паролю.  
-Данные для подключения по ssh могут быть заданы в vars или vault в зависимости от подключения.  
-При запуске через Jenkins в ansible.cfg добавляются параметры roles_path и vault_password_file, чтобы определить путь к хранилищу ролей, а также избежать запроса на ввод паролей ssh-юзера и пароля от vault.
+For convenience, an inventory directory structure is used.
 
-## Пример использования
-### Условие
-Имеем некий сервер test.lan.devops.ru, на котором хотим установить docker-ce. Доступ к серверу по ssh организован от юзера devops через ключ, sudo требует ввод пароля, ключ сервисного пользователя jenkins добавлен в authorized_keys.
-### Решение
-С помощью скрипта ansible_inventory.sh создаем структуру inventory, где будут файлы hosts, vars, vault  
-```
-./ansible_inventory.sh docker_hosts
-```
-После чего в каталоге inventory будет лежать готовая для заполнения данными структура и краткий help по созданию vault. Им мы и воспользуемся:
-```
-ansible-vault create inventory/docker_hosts/group_vars/docker_hosts/vault
-```
-ВНИМАНИЕ! ПАРОЛЬ НА VAULT ДОЛЖЕН БЫТЬ ВСЕГДА ОДИН И ТОТ ЖЕ, ЧТОБЫ JENKINS МОГ С ЕГО ПОМОЩЬЮ ДЕШИФРОВАТЬ VAULT.  
-В vault заносим sudo password для юзера drit:
-```
-ansible_become_pass: $o$trongPa$$
-```
-Задаем host_vars/group_vars. Здесь нам нужно указать, как минимум, настройки подключения к хостам. В нашем случае нужно указать имя юзера в файле ./inventory/docker_hosts/group_vars/docker_hosts/vars:
+The inventory directory acts as an inventory. The directory structure looks like this:
+
+\* You can override it for the CI/CD agent or create a separate item for the agent
+
 
 ```
-ansible_user: drit
+├── IAC
+│ ├── inventory         - inventory storage
+│ │ ├── ansible.cfg     - config adapted for use with Ansible
+│ │ ├── env_example     - host file example, which lists network nodes in yml format, related to this inventory
+│ │ ├── group_vars      - directory with variables for node groups in plain text and an example in yml format
+│ │ ├── hosts.yml       - host file, which lists network nodes in yml format, related to this inventory
+│ │ └── host_vars       - directory with single-host variables in plain text and an example in yml format
+│ ├── playbooks         - Ansible playbooks repository
+│ └── roles             - Ansible pipeline/role patterns repository
+
 ```
-Правим ./inventory/docker_hosts/hosts , добавляем запись о нашем сервере test.lan.ubrr.ru.  
-В каталог roles ложим все нужные роли. Пусть в нашем случае это будут yum_repos и docker_ce.  
-В каталоге playbooks создаем плейбук с именем install_docker_ce.yml, в котором будут вызываться вышеописанные роли.  
-Чтобы выполнить плейбук через jenkins, можно воспользоваться параметризированной джобой https://jenkins.lan.ubrr.ru/job/DevOps/job/Ansible/job/Run-Ansible-Playbook/  
-Если же нужно выполнять действие регулярно, то рядом можно создать джобу с нужными нам параметрами:
+
+
+To launch a playbook, use the following commands:
+
 ```
-build job: './Run-Ansible-Playbook', parameters: [
-    string(name: 'inventoryName', value: 'docker_hosts'),
-    string(name: 'playbookName', value: 'install_docker_ce')
-]
+# Launching with hosts/inventory item specified
+ansible-playbook -i inventory/<inventory_item> playbooks/<playbook_agent.yml>
+
+# If hosts are defined in a playbook or additionally in role variables using playbooks
+ansible-playbook playbooks/<dir_playbook>/<playbook.yml>
 ```
-# Получение секретов из hashicorp vault
-Ansible может получать секреты из hashicorp vault.  
-Для этого необходимо установить пакет hvac
+It is possible to connect to hosts using an ssh key or login/password.
+Data for connecting via ssh can be specified in vars or vault depending on the connection.
+
 ```
+# Getting secrets from hashicorp vault
+Ansible can get secrets from Hashicorp Vault
+To do this, you need to install the hvac package
+
 pip install hvac
 pip3 install hvac
 ```
-Далее нужно добавить в терсинальную сессию переменные окружения.  
-Для авторизации через токен:  
+
+Next, you need to add the following to the terminal session environment variables.
+
+For authorization via token:
+
 ```
 export VAULT_ADDR=https://vault-dev.lan.ubrr.ru:8200 
 export VAULT_AUTH_METHOD=token
 export VAULT_TOKEN=TOKENISHERE
 ```
-С ldap-авторизацией не все так просто, т.к. нет нативно поддерживаемых переменных окружения для логина и пароля.  
-Обход данной проблемы заключается в самостоятельном определении и обработке переменных VAULT_USER/VAULTPASSWORD в плейбуках.
-Для авторизации через ldap:
+
+With LDAP authorization, things are not so simple, because there are no natively supported environment variables for login and password.
+The workaround for this problem is to independently define and process the VAULT_USER/VAULTPASSWORD variables in playbooks.
+
+For authorization via LDAP:
+
 ```
-export VAULT_ADDR=https://vault-dev.lan.ubrr.ru:8200 
+export VAULT_ADDR=https://vault.xmaple.com:8200 
 export VAULT_AUTH_METHOD=ldap
 export VAULT_USER=USERISHERE
 export VAULT_PASSWORD=PASSWORDISHERE
 ```
-В итоге, остается только запустить плейбук:  
+
+Finally, all that remains is to launch the playbook:
+
 ```
-ansible-playbook -i inventory/vault/ ./playbooks/setup_vault-dev.yml 
+ansible-playbook -i inventory/vault ./playbooks/setup_vault.yml 
 ```
