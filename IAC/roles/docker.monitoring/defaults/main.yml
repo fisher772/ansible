@@ -1,0 +1,9 @@
+---
+# defaults file for docker.monitoring
+MYHOSTS:                     "p1-cloud"
+
+work_dest:                   "/home/ansible"
+
+src_folder_prometheus:       "/var/lib/docker/volumes/prometheus_nginx_conf/_data"
+src_folder_grafana:          "/var/lib/docker/volumes/grafana_nginx_conf/_data"
+conf_dest_folder:            "/var/lib/docker/volumes/nginx_conf/_data"

@@ -1,0 +1,10 @@
+---
+# vars file for docker.elk
+
+ekb:              "YOUR_TIMEZONE"
+fqdn_prom:        "YOUR_HOST_ADDRESS"
+c_alias_prom:     "alias-zone-upstream"
+s_alias_prom:     "<hostname>:<port>"
+fqdn_graf:        "YOUR_HOST_ADDRESS"
+c_alias_graf:     "alias-zone-upstream"
+s_alias_graf:     "<hostname>:<port>"

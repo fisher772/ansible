@@ -1,0 +1,10 @@
+---
+# vars file for docker.elk
+
+ekb:        "YOUR_TIMEZONE"
+fqdn:       "YOUR_HOST_ADDRESS"
+c_alias:    "alias-zone-upstream"
+s_alias:    "<hostname>:<port>"
+els_user:   "elastic"
+els_pw:     "PASSWORD"
+java_opts:  "-Xms512m -Xmx512m"

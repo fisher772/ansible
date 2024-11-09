@@ -1,0 +1,59 @@
+---
+# tasks file for docker.redis
+- name: Ping test
+  ping:
+
+- name: Start Docker service
+  service:
+    name: docker
+    state: started
+
+- name: Check Redis
+  shell: docker ps -a | grep -q "redis"
+  register: check_result
+  ignore_errors: true
+
+- block:
+    - name: Stop container
+      ansible.builtin.docker_container:
+        name: redis
+        state: stopped
+
+    - name: Delete container
+      ansible.builtin.docker_container:
+        name: redis
+        state: absent
+
+    - name: Clear all unused Docker volumes
+      ansible.builtin.docker_volume:
+        prune: true
+
+    - name: Delete image
+      ansible.builtin.docker_image:
+        name: fisher772/redis
+        state: absent
+  when: check_result == 0
+
+- name: Create necessary volume redis_conf for Redis
+  ansible.builtin.docker_volume:
+    name: redis_conf
+    state: present
+  register: redis_conf
+
+- name: Ensure network exists
+  ansible.builtin.docker_network:
+    name: redis
+    state: present
+
+- name: Run Redis container
+  ansible.builtin.docker_container:
+    name: redis
+    image: fisher772/redis
+    restart_policy: unless-stopped
+    hostname: redis
+    volumes:
+      - redis_conf:/usr/local/etc/redis/conf.d
+    env:
+      TZ: "{{ EKB }}"
+    networks:
+      - name: redis
